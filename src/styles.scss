@@ -135,11 +135,19 @@ textarea,
 
 .linked-computer-filter {
     align-items: center;
-    background: #f1f6fa;
+    background: #edf7f4;
+    border-bottom: 1px solid #c9e8e1;
+    border-left: 4px solid #1b9b92;
+    color: #12675f;
     display: flex;
+    font-size: var(--chictool-control-font-size);
     gap: 12px;
     justify-content: space-between;
-    padding: 10px 16px;
+    padding: 10px 14px;
+
+    strong {
+        color: #0d514b;
+    }
 }
 
 .backdrop {
