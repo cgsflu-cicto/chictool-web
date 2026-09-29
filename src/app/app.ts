@@ -7,7 +7,6 @@ import { CardModule } from '@openng/optimus-ui/card';
 import { BarsIcon } from '@openng/optimus-ui/icons/bars';
 import { FilterIcon } from '@openng/optimus-ui/icons/filter';
 import { PlusIcon } from '@openng/optimus-ui/icons/plus';
-import { RefreshIcon } from '@openng/optimus-ui/icons/refresh';
 import { ThLargeIcon } from '@openng/optimus-ui/icons/thlarge';
 import { IconFieldModule } from '@openng/optimus-ui/iconfield';
 import { SearchIcon } from '@openng/optimus-ui/icons/search';
@@ -58,6 +57,7 @@ interface AuthState {
     currentUser: { id: number; username: string } | null;
 }
 interface DatabaseSyncResult {
+    lookups: { downloaded: number };
     computers: { synced: number; total: number };
     peripherals: { synced: number; total: number };
     synced: number;
@@ -133,7 +133,7 @@ const computers: Computer[] = [
 
 @Component({
     selector: 'app-root',
-    imports: [CommonModule, FormsModule, AutoCompleteModule, Button, CardModule, BarsIcon, FilterIcon, PlusIcon, RefreshIcon, ThLargeIcon, IconFieldModule, InputIconModule, SearchIcon, InputTextModule, SelectModule, TextareaModule, TooltipModule],
+    imports: [CommonModule, FormsModule, AutoCompleteModule, Button, CardModule, BarsIcon, FilterIcon, PlusIcon, ThLargeIcon, IconFieldModule, InputIconModule, SearchIcon, InputTextModule, SelectModule, TextareaModule, TooltipModule],
     styleUrl: './app.scss',
     templateUrl: './app.html',
 })
@@ -399,7 +399,10 @@ export class App implements OnDestroy {
         this.databaseMessageIsError.set(false);
         try {
             const result = await api.syncDatabase();
-            const summary = `Synced ${result.computers.synced}/${result.computers.total} computers and ${result.peripherals.synced}/${result.peripherals.total} peripherals.`;
+            const lookupSummary = result.lookups
+                ? `Downloaded ${result.lookups.downloaded} lookup values; `
+                : '';
+            const summary = `${lookupSummary}Synced ${result.computers.synced}/${result.computers.total} computers and ${result.peripherals.synced}/${result.peripherals.total} peripherals.`;
             const failure = result.failures[0];
             this.databaseMessage.set(result.failed ? `${summary} ${result.failed} failed.${failure ? ` ${failure}` : ''}` : summary);
             this.databaseMessageIsError.set(result.failed > 0);
