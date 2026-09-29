@@ -15,6 +15,7 @@ import { InputTextModule } from '@openng/optimus-ui/inputtext';
 import { SelectModule } from '@openng/optimus-ui/select';
 import { TextareaModule } from '@openng/optimus-ui/textarea';
 import { TooltipModule } from '@openng/optimus-ui/tooltip';
+import { toDataURL } from 'qrcode';
 
 type DeviceType = 'Desktop' | 'Laptop' | 'All-in-One' | 'Server' | 'Tablet' | 'Phone' | 'Other';
 interface Computer {
@@ -74,6 +75,10 @@ interface IncomingScan {
     requestId: string;
     value: string;
 }
+interface HotspotSettings {
+    networkName: string;
+}
+interface HotspotStatus { state: string; clientCount: number; networkName: string; }
 interface DesktopBridge {
     authState(): Promise<AuthState>;
     login(username: string, password: string): Promise<AuthState>;
@@ -90,6 +95,12 @@ interface DesktopBridge {
     setSyncServer(serverUrl: string): Promise<{ serverUrl: string }>;
     syncDatabase(): Promise<DatabaseSyncResult>;
     resetDatabase(): Promise<{ computers: number; peripherals: number; collectionLogs: number; auditLogs: number }>;
+    getHotspotSettings(): Promise<HotspotSettings>;
+    setHotspotName(networkName: string): Promise<HotspotSettings>;
+    openWindowsHotspotSettings(): Promise<void>;
+    getHotspotStatus(): Promise<HotspotStatus>;
+    startHotspot(networkName: string, password: string): Promise<HotspotStatus>;
+    stopHotspot(): Promise<HotspotStatus>;
     getScanEndpointInfo(): Promise<ScanEndpointInfo>;
     onScanReceived(listener: (scan: IncomingScan) => void): () => void;
     completeScan(requestId: string, result: { ok: boolean; message?: string }): Promise<boolean>;
@@ -195,6 +206,13 @@ export class App implements OnDestroy {
     protected readonly databaseMessage = signal('');
     protected readonly databaseMessageIsError = signal(false);
     protected readonly scanEndpoint = signal<ScanEndpointInfo>({ enabled: false, port: 47831, urls: [], error: '' });
+    protected readonly hotspotNetworkName = signal('CHICTool');
+    protected hotspotPassword = '';
+    protected readonly hotspotQrCode = signal('');
+    protected readonly hotspotMessage = signal('');
+    protected readonly hotspotMessageIsError = signal(false);
+    protected readonly hotspotBusy = signal(false);
+    protected readonly hotspotStatus = signal<HotspotStatus | null>(null);
     protected peripheralForm = this.blankPeripheral();
     protected readonly manufacturerSuggestions = signal<string[]>([]);
     protected readonly modelSuggestions = signal<string[]>([]);
@@ -319,17 +337,19 @@ export class App implements OnDestroy {
         const api = window.chictoolDesktop;
         if (!api) return;
         try {
-            const [state, lookups, syncSettings, scanEndpoint] = await Promise.all([
+            const [state, lookups, syncSettings, scanEndpoint, hotspotSettings] = await Promise.all([
                 api.authState(),
                 api.lookups(),
                 api.getSyncSettings(),
                 api.getScanEndpointInfo(),
+                api.getHotspotSettings(),
             ]);
             this.hasUsers.set(state.hasUsers);
             this.currentUser.set(state.currentUser);
             this.lookups.set(lookups);
             this.databaseServerUrl.set(syncSettings.serverUrl);
             this.scanEndpoint.set(scanEndpoint);
+            this.hotspotNetworkName.set(hotspotSettings.networkName);
             if (state.currentUser) await this.refreshDesktopData();
         } catch (error) {
             this.authError.set(error instanceof Error ? error.message : 'Could not open the local database.');
@@ -348,6 +368,10 @@ export class App implements OnDestroy {
                     computerRows.find((computer) => computer.id === item.computerId)?.serialNumber ?? '',
             })),
         );
+    }
+    private async refreshScanEndpoint(): Promise<void> {
+        const api = window.chictoolDesktop;
+        if (api) this.scanEndpoint.set(await api.getScanEndpointInfo());
     }
 
     protected changeView(view: 'inventory' | 'peripherals' | 'database'): void {
@@ -428,6 +452,103 @@ export class App implements OnDestroy {
             this.databaseMessageIsError.set(true);
         } finally {
             this.databaseBusy.set(false);
+        }
+    }
+    protected async showHotspotQrCode(): Promise<void> {
+        const api = window.chictoolDesktop;
+        if (!api) return;
+        const networkName = this.hotspotNetworkName().trim();
+        if (!networkName) {
+            this.hotspotMessage.set('Enter the hotspot name first.');
+            this.hotspotMessageIsError.set(true);
+            return;
+        }
+        if (this.hotspotPassword.length < 8) {
+            this.hotspotMessage.set('Enter the hotspot password (at least 8 characters).');
+            this.hotspotMessageIsError.set(true);
+            return;
+        }
+        const escapeWifiValue = (value: string) => value.replace(/([\\;,:\"])/g, '\\$1');
+        this.hotspotBusy.set(true);
+        this.hotspotMessage.set('');
+        try {
+            const settings = await api.setHotspotName(networkName);
+            this.hotspotNetworkName.set(settings.networkName);
+            this.hotspotQrCode.set(
+                await toDataURL(`WIFI:T:WPA;S:${escapeWifiValue(settings.networkName)};P:${escapeWifiValue(this.hotspotPassword)};;`, {
+                    errorCorrectionLevel: 'M',
+                    margin: 1,
+                    width: 280,
+                }),
+            );
+            this.hotspotMessage.set('Scan this QR code with a phone camera to join the hotspot. The password is not saved.');
+            this.hotspotMessageIsError.set(false);
+        } catch (error) {
+            this.hotspotMessage.set(error instanceof Error ? error.message : 'Could not create the hotspot QR code.');
+            this.hotspotMessageIsError.set(true);
+        } finally {
+            this.hotspotBusy.set(false);
+        }
+    }
+    protected async startHotspot(): Promise<void> {
+        const api = window.chictoolDesktop;
+        if (!api) return;
+        this.hotspotBusy.set(true);
+        try {
+            const status = await api.startHotspot(this.hotspotNetworkName(), this.hotspotPassword);
+            this.hotspotStatus.set(status);
+            await this.refreshScanEndpoint();
+            await this.showHotspotQrCode();
+            this.hotspotMessage.set(`Hotspot started. ${status.clientCount} device(s) connected.`);
+            this.hotspotMessageIsError.set(false);
+        } catch (error) {
+            this.hotspotMessage.set(error instanceof Error ? error.message : 'Could not start Mobile Hotspot.');
+            this.hotspotMessageIsError.set(true);
+        } finally { this.hotspotBusy.set(false); }
+    }
+    protected async toggleHotspot(): Promise<void> {
+        const api = window.chictoolDesktop;
+        if (!api) return;
+        try {
+            const status = this.hotspotStatus() ?? await api.getHotspotStatus();
+            this.hotspotStatus.set(status);
+            if (status.state === 'On') await this.stopHotspot();
+            else await this.startHotspot();
+        } catch (error) {
+            this.hotspotMessage.set(error instanceof Error ? error.message : 'Could not read Mobile Hotspot status.');
+            this.hotspotMessageIsError.set(true);
+        }
+    }
+    protected closeHotspotQrCode(): void {
+        this.hotspotQrCode.set('');
+    }
+    protected async stopHotspot(): Promise<void> {
+        const api = window.chictoolDesktop;
+        if (!api) return;
+        this.hotspotBusy.set(true);
+        try {
+            this.hotspotStatus.set(await api.stopHotspot());
+            this.hotspotQrCode.set('');
+            await this.refreshScanEndpoint();
+            this.hotspotMessage.set('Hotspot stopped.');
+            this.hotspotMessageIsError.set(false);
+        } catch (error) {
+            this.hotspotMessage.set(error instanceof Error ? error.message : 'Could not stop Mobile Hotspot.');
+            this.hotspotMessageIsError.set(true);
+        } finally { this.hotspotBusy.set(false); }
+    }
+    protected async openWindowsHotspotSettings(): Promise<void> {
+        const api = window.chictoolDesktop;
+        if (!api) return;
+        this.hotspotBusy.set(true);
+        this.hotspotMessage.set('');
+        try {
+            await api.openWindowsHotspotSettings();
+        } catch (error) {
+            this.hotspotMessage.set(error instanceof Error ? error.message : 'Could not open Windows Mobile Hotspot settings.');
+            this.hotspotMessageIsError.set(true);
+        } finally {
+            this.hotspotBusy.set(false);
         }
     }
     protected openComputerForm(computer?: Computer, preserveCaptured = false): void {

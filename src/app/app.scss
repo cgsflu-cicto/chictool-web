@@ -104,6 +104,37 @@ nav p-button {
     align-items: center;
     display: flex;
 }
+
+.hotspot-qr {
+    background: #fff;
+    display: block;
+    height: min(280px, 58vw);
+    max-width: 100%;
+    width: min(280px, 58vw);
+}
+
+:host ::ng-deep .hotspot-operation {
+    position: relative;
+}
+
+.hotspot-qr-overlay {
+    align-items: center;
+    background: #fff;
+    border-radius: inherit;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    inset: 0;
+    justify-content: center;
+    padding: 20px;
+    position: absolute;
+    z-index: 1;
+}
+
+.hotspot-qr-overlay h3 {
+    margin: 0;
+}
+
 .sidebar-user {
     align-items: center;
     border-top: 1px solid #25445a;

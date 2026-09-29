@@ -41,19 +41,35 @@
                 [text]="true"
                 [class.active]="activeView() === 'inventory'"
                 (onClick)="changeView('inventory')"
-            ><svg data-p-icon="th-large" aria-hidden="true"></svg><span>Computers</span></p-button>
+                ><svg data-p-icon="th-large" aria-hidden="true"></svg><span>Computers</span></p-button
+            >
             <p-button
                 type="button"
                 [text]="true"
                 [class.active]="activeView() === 'peripherals'"
                 (onClick)="changeView('peripherals')"
-            ><svg data-p-icon="bars" aria-hidden="true"></svg><span>Peripherals</span></p-button>
+                ><svg data-p-icon="bars" aria-hidden="true"></svg><span>Peripherals</span></p-button
+            >
             <p-button
                 type="button"
                 [text]="true"
                 [class.active]="activeView() === 'database'"
                 (onClick)="changeView('database')"
-            ><svg data-p-icon="system" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><ellipse cx="12" cy="5" rx="7" ry="3"></ellipse><path d="M5 5v7c0 1.66 3.13 3 7 3s7-1.34 7-3V5"></path><path d="M5 12v7c0 1.66 3.13 3 7 3s7-1.34 7-3v-7"></path></svg><span>System</span></p-button>
+                ><svg
+                    data-p-icon="system"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                >
+                    <ellipse cx="12" cy="5" rx="7" ry="3"></ellipse>
+                    <path d="M5 5v7c0 1.66 3.13 3 7 3s7-1.34 7-3V5"></path>
+                    <path d="M5 12v7c0 1.66 3.13 3 7 3s7-1.34 7-3v-7"></path></svg
+                ><span>System</span></p-button
+            >
         </nav>
         <div class="sidebar-footer">
             <div class="workspace-status"><span class="status-dot"></span> Local workspace</div>
@@ -134,9 +150,30 @@
                             optionLabel="label"
                             optionValue="value"
                     /></label>
-                    <label>Hostname / IP<input pInputText [(ngModel)]="captureHostname" name="captureHostname" [disabled]="captureMode !== 'remote'" /></label>
-                    <label>Username<input pInputText [(ngModel)]="captureUsername" name="captureUsername" autocomplete="username" [disabled]="captureMode !== 'remote'" /></label>
-                    <label>Password<input pInputText type="password" [(ngModel)]="capturePassword" name="capturePassword" autocomplete="new-password" [disabled]="captureMode !== 'remote'" /></label>
+                    <label
+                        >Hostname / IP<input
+                            pInputText
+                            [(ngModel)]="captureHostname"
+                            name="captureHostname"
+                            [disabled]="captureMode !== 'remote'"
+                    /></label>
+                    <label
+                        >Username<input
+                            pInputText
+                            [(ngModel)]="captureUsername"
+                            name="captureUsername"
+                            autocomplete="username"
+                            [disabled]="captureMode !== 'remote'"
+                    /></label>
+                    <label
+                        >Password<input
+                            pInputText
+                            type="password"
+                            [(ngModel)]="capturePassword"
+                            name="capturePassword"
+                            autocomplete="new-password"
+                            [disabled]="captureMode !== 'remote'"
+                    /></label>
                 </div>
                 @if (captureMessage()) {
                     <p role="status">{{ captureMessage() }}</p>
@@ -149,9 +186,21 @@
                         (onClick)="captureComputer()"
                     />
                     @if (captureResult()) {
-                        <p-button label="Load Captured" type="button" severity="secondary" [outlined]="true" (onClick)="loadCapturedDetails()" />
+                        <p-button
+                            label="Load Captured"
+                            type="button"
+                            severity="secondary"
+                            [outlined]="true"
+                            (onClick)="loadCapturedDetails()"
+                        />
                         @if (matchedCapturedComputer(); as savedComputer) {
-                            <p-button label="Load Saved" type="button" severity="secondary" [outlined]="true" (onClick)="loadSavedDetails()" />
+                            <p-button
+                                label="Load Saved"
+                                type="button"
+                                severity="secondary"
+                                [outlined]="true"
+                                (onClick)="loadSavedDetails()"
+                            />
                         }
                     }
                     @if (captureMode === 'remote') {
@@ -179,19 +228,23 @@
         }
         @if (activeView() === 'database') {
             <section class="database-operations">
-                <!-- <h2>Database Operations</h2>
-                <p class="database-intro">Configure the CHICTool API target and synchronize this local SQLite inventory with its MySQL database.</p> -->
                 @if (!desktop()) {
                     <p class="database-message error">Database operations are available in the Electron desktop app.</p>
                 }
                 @if (databaseMessage()) {
-                    <p class="database-message" [class.error]="databaseMessageIsError()" role="status">{{ databaseMessage() }}</p>
+                    <p class="database-message" [class.error]="databaseMessageIsError()" role="status">
+                        {{ databaseMessage() }}
+                    </p>
                 }
                 <div class="database-operation-grid">
                     <article class="database-operation">
                         <h3>Server Sync</h3>
-                        <p>Download the canonical lookup values to this device, then upload local computers and peripherals to the server.</p>
-                        <label class="database-server-field">Server URL
+                        <p>
+                            Download the canonical lookup values to this device, then upload local computers and
+                            peripherals to the server.
+                        </p>
+                        <label class="database-server-field"
+                            >Server URL
                             <input
                                 pInputText
                                 type="url"
@@ -222,7 +275,10 @@
                     </article>
                     <article class="database-operation danger-operation">
                         <h3>Reset Local Database</h3>
-                        <p>Permanently delete local computer and peripheral records. User accounts and lookup values remain; the sync server is not changed.</p>
+                        <p>
+                            Permanently delete local computer and peripheral records. User accounts and lookup values
+                            remain; the sync server is not changed.
+                        </p>
                         <p-button
                             [label]="databaseBusy() ? 'Working…' : 'Reset'"
                             type="button"
@@ -235,7 +291,9 @@
                     </article>
                     <article class="database-operation scan-operation">
                         <h3>Code Scanner Webhook</h3>
-                        <p>Send a scanned code to the currently focused text field. It replaces that field's contents.</p>
+                        <p>
+                            Send a scanned code to the currently focused text field. It replaces that field's contents.
+                        </p>
                         @if (scanEndpoint().enabled) {
                             @if (scanEndpoint().urls.length) {
                                 <div class="scan-endpoint-list">
@@ -246,178 +304,291 @@
                             } @else {
                                 <code>http://&lt;this-PC-LAN-IP&gt;:{{ scanEndpoint().port }}/scan</code>
                             }
-                            <p>POST JSON: <code>{{ '{"codevalue":"SCANNED-CODE"}' }}</code></p>
+                            <p>
+                                POST JSON: <code>{{ '{"codevalue":"SCANNED-CODE"}' }}</code>
+                            </p>
                             <!-- <p class="scan-warning">No authentication is enabled. Any device that can reach this port can enter text into the focused field; do not expose or forward this port to the internet.</p> -->
                         } @else {
-                            <p class="error-message">{{ scanEndpoint().error || 'The scan endpoint is not available.' }}</p>
+                            <p class="error-message">
+                                {{ scanEndpoint().error || 'The scan endpoint is not available.' }}
+                            </p>
+                        }
+                    </article>
+                    <article class="database-operation hotspot-operation">
+                        <h3>Mobile Hotspot</h3>
+                        <p>
+                            Set the Wi-Fi name used by the connection QR code, then use the same name and password in
+                            Windows Mobile Hotspot settings.
+                        </p>
+                        <label class="database-server-field"
+                            >Name (SSID)
+                            <input
+                                pInputText
+                                [ngModel]="hotspotNetworkName()"
+                                (ngModelChange)="hotspotNetworkName.set($event)"
+                                name="hotspotNetworkName"
+                                maxlength="32"
+                                [disabled]="!desktop() || hotspotBusy()"
+                            />
+                        </label>
+                        <label class="database-server-field"
+                            >Password
+                            <input
+                                pInputText
+                                type="password"
+                                [(ngModel)]="hotspotPassword"
+                                name="hotspotPassword"
+                                autocomplete="new-password"
+                                [disabled]="!desktop() || hotspotBusy()"
+                            />
+                        </label>
+                        <div class="database-operation-actions">
+                            <p-button
+                                [label]="
+                                    hotspotBusy() ? 'Working…' : hotspotStatus()?.state === 'On' ? 'Stop' : 'Start'
+                                "
+                                type="button"
+                                [severity]="hotspotStatus()?.state === 'On' ? 'danger' : 'primary'"
+                                [outlined]="hotspotStatus()?.state === 'On'"
+                                [loading]="hotspotBusy()"
+                                [disabled]="!desktop() || hotspotBusy()"
+                                (onClick)="toggleHotspot()"
+                            />
+                            <p-button
+                                label="Windows Hotspot"
+                                type="button"
+                                severity="secondary"
+                                [outlined]="true"
+                                [disabled]="!desktop() || hotspotBusy()"
+                                (onClick)="openWindowsHotspotSettings()"
+                            />
+                            <p-button
+                                styleClass="hotspot-qr-button"
+                                type="button"
+                                ariaLabel="Show connection QR code"
+                                pTooltip="Show connection QR code"
+                                tooltipPosition="top"
+                                [loading]="hotspotBusy()"
+                                [disabled]="!desktop() || hotspotBusy()"
+                                (onClick)="showHotspotQrCode()"
+                                ><svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor" aria-hidden="true">
+                                    <path
+                                        d="M3 3h7v7H3V3Zm2 2v3h3V5H5Zm9-2h7v7h-7V3Zm2 2v3h3V5h-3ZM3 14h7v7H3v-7Zm2 2v3h3v-3H5Zm7-2h2v2h-2v-2Zm3 0h2v2h-2v-2Zm4 0h2v2h-2v-2Zm-7 3h2v2h-2v-2Zm3 0h2v2h-2v2h-2v-2Zm4 3h2v2h-2v-2Zm-4 0h2v2h-2v-2Z"
+                                    /></svg
+                            ></p-button>
+                        </div>
+                        @if (hotspotMessage()) {
+                            <p class="database-message" [class.error]="hotspotMessageIsError()" role="status">
+                                {{ hotspotMessage() }}
+                            </p>
+                        }
+                        @if (hotspotQrCode()) {
+                            <div class="hotspot-qr-overlay">
+                                <h3>Scan to Connect</h3>
+                                <img
+                                    class="hotspot-qr"
+                                    [src]="hotspotQrCode()"
+                                    alt="QR code to connect to {{ hotspotNetworkName() }}"
+                                />
+                                <p-button
+                                    label="Close"
+                                    type="button"
+                                    severity="secondary"
+                                    [outlined]="true"
+                                    (onClick)="closeHotspotQrCode()"
+                                />
+                            </div>
                         }
                     </article>
                 </div>
             </section>
         }
         @if (activeView() !== 'database') {
-        <section class="panel">
-            <div class="toolbar">
-                <p-iconfield class="search">
-                    <p-inputicon>
-                        <svg data-p-icon="search" aria-hidden="true"></svg>
-                    </p-inputicon>
-                    <input
-                        pInputText
-                        [value]="query()"
-                        (input)="query.set($any($event.target).value)"
-                        placeholder="Search Inventory"
-                    />
-                </p-iconfield>
-                @if (activeView() === 'inventory') {
-                    <p-select
-                        [options]="offices()"
-                        [ngModel]="office()"
-                        (ngModelChange)="office.set($event)"
-                        placeholder="All Offices"
-                        ariaLabel="Filter by office"
-                    />
+            <section class="panel">
+                <div class="toolbar">
+                    <p-iconfield class="search">
+                        <p-inputicon>
+                            <svg data-p-icon="search" aria-hidden="true"></svg>
+                        </p-inputicon>
+                        <input
+                            pInputText
+                            [value]="query()"
+                            (input)="query.set($any($event.target).value)"
+                            placeholder="Search Inventory"
+                        />
+                    </p-iconfield>
+                    @if (activeView() === 'inventory') {
+                        <p-select
+                            [options]="offices()"
+                            [ngModel]="office()"
+                            (ngModelChange)="office.set($event)"
+                            placeholder="All Offices"
+                            ariaLabel="Filter by office"
+                        />
+                    }
+                    <p-button
+                        type="button"
+                        severity="primary"
+                        (onClick)="activeView() === 'inventory' ? openComputerForm() : openPeripheralForm()"
+                        ><svg data-p-icon="plus" aria-hidden="true"></svg
+                        ><span>Add {{ activeView() === 'inventory' ? 'Computer' : 'Peripheral' }}</span></p-button
+                    >
+                </div>
+                @if (activeView() === 'peripherals' && peripheralFilterComputer(); as computer) {
+                    <div class="linked-computer-filter">
+                        <span
+                            >Showing peripherals for <strong>{{ computer.serialNumber }}</strong></span
+                        >
+                        <p-button
+                            label="Show All"
+                            type="button"
+                            severity="secondary"
+                            [text]="true"
+                            (onClick)="clearPeripheralComputerFilter()"
+                        />
+                    </div>
                 }
-                <p-button
-                    type="button"
-                    severity="primary"
-                    (onClick)="activeView() === 'inventory' ? openComputerForm() : openPeripheralForm()"
-                ><svg data-p-icon="plus" aria-hidden="true"></svg><span>Add {{ activeView() === 'inventory' ? 'Computer' : 'Peripheral' }}</span></p-button>
-            </div>
-            @if (activeView() === 'peripherals' && peripheralFilterComputer(); as computer) {
-                <div class="linked-computer-filter">
-                    <span>Showing peripherals for <strong>{{ computer.serialNumber }}</strong></span>
-                    <p-button label="Show All" type="button" severity="secondary" [text]="true" (onClick)="clearPeripheralComputerFilter()" />
-                </div>
-            }
-            @if (activeView() === 'inventory') {
-                <div class="table-wrap">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Computer</th>
-                                <th>Type</th>
-                                <th>Primary User / PAR Holder</th>
-                                <th>Office</th>
-                                <th>Peripherals</th>
-                                <th>Acquired on</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @for (item of filteredComputers(); track item.id) {
+                @if (activeView() === 'inventory') {
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
                                 <tr>
-                                    <td>
-                                        <strong class="serial-number">{{ item.serialOverride || item.serialNumber }}</strong
-                                        ><span>{{ item.manufacturer }} {{ item.model }} @if (item.hostname) {· {{ item.hostname }} }</span>
-                                    </td>
-                                    <td>
-                                        <span class="tag">{{ item.machineType }}</span>
-                                    </td>
-                                    <td>
-                                        {{
-                                            item.primaryUser === item.parHolder || !item.parHolder
-                                                ? item.primaryUser || '—'
-                                                : !item.primaryUser
-                                                  ? item.parHolder
-                                                  : item.primaryUser + ' / ' + item.parHolder
-                                        }}
-                                    </td>
-                                    <td>{{ item.office }}</td>
-                                    <td class="peripheral-count-cell">
-                                        <div class="peripheral-count-action">
-                                            <span class="peripheral-count-value">{{ peripheralCounts().get(item.id) ?? 0 }}</span>
+                                    <th>Computer</th>
+                                    <th>Type</th>
+                                    <th>Primary User / PAR Holder</th>
+                                    <th>Office</th>
+                                    <th>Peripherals</th>
+                                    <th>Acquired on</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @for (item of filteredComputers(); track item.id) {
+                                    <tr>
+                                        <td>
+                                            <strong class="serial-number">{{
+                                                item.serialOverride || item.serialNumber
+                                            }}</strong
+                                            ><span
+                                                >{{ item.manufacturer }} {{ item.model }}
+                                                @if (item.hostname) {
+                                                    · {{ item.hostname }}
+                                                }
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="tag">{{ item.machineType }}</span>
+                                        </td>
+                                        <td>
+                                            {{
+                                                item.primaryUser === item.parHolder || !item.parHolder
+                                                    ? item.primaryUser || '—'
+                                                    : !item.primaryUser
+                                                      ? item.parHolder
+                                                      : item.primaryUser + ' / ' + item.parHolder
+                                            }}
+                                        </td>
+                                        <td>{{ item.office }}</td>
+                                        <td class="peripheral-count-cell">
+                                            <div class="peripheral-count-action">
+                                                <span class="peripheral-count-value">{{
+                                                    peripheralCounts().get(item.id) ?? 0
+                                                }}</span>
+                                                <p-button
+                                                    label="Manage"
+                                                    type="button"
+                                                    size="small"
+                                                    [text]="true"
+                                                    (onClick)="managePeripherals(item.id)"
+                                                />
+                                            </div>
+                                        </td>
+                                        <td>{{ item.acquiredOn || '—' }}</td>
+                                        <td class="actions">
                                             <p-button
-                                                label="Manage"
+                                                label="Edit"
                                                 type="button"
-                                                size="small"
                                                 [text]="true"
-                                                (onClick)="managePeripherals(item.id)"
+                                                size="small"
+                                                (onClick)="openComputerForm(item)"
                                             />
-                                        </div>
-                                    </td>
-                                    <td>{{ item.acquiredOn || '—' }}</td>
-                                    <td class="actions">
-                                        <p-button
-                                            label="Edit"
-                                            type="button"
-                                            [text]="true"
-                                            size="small"
-                                            (onClick)="openComputerForm(item)"
-                                        />
-                                        <p-button
-                                            label="Delete"
-                                            type="button"
-                                            severity="danger"
-                                            [text]="true"
-                                            size="small"
-                                            (onClick)="deleteComputer(item)"
-                                        />
-                                    </td>
-                                </tr>
-                            }
-                            @if (!filteredComputers().length) {
+                                            <p-button
+                                                label="Delete"
+                                                type="button"
+                                                severity="danger"
+                                                [text]="true"
+                                                size="small"
+                                                (onClick)="deleteComputer(item)"
+                                            />
+                                        </td>
+                                    </tr>
+                                }
+                                @if (!filteredComputers().length) {
+                                    <tr>
+                                        <td colspan="7" class="empty">No computers match this view.</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+                @if (activeView() === 'peripherals') {
+                    <div class="table-wrap">
+                        <table>
+                            <thead>
                                 <tr>
-                                    <td colspan="7" class="empty">No computers match this view.</td>
+                                    <th>Peripheral</th>
+                                    <th>Serial Number</th>
+                                    <th>Primary User</th>
+                                    <th>Linked Computer</th>
+                                    <th></th>
                                 </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            }
-            @if (activeView() === 'peripherals') {
-                <div class="table-wrap">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>Peripheral</th>
-                                <th>Serial Number</th>
-                                <th>Primary User</th>
-                                <th>Linked Computer</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @for (item of filteredPeripherals(); track item.id) {
-                                <tr>
-                                    <td>
-                                        <strong>{{ item.type }}</strong
-                                        ><span>{{ item.manufacturer }} {{ item.model }}</span>
-                                    </td>
-                                    <td class="serial-number">{{ item.serialNumber || '—' }}</td>
-                                    <td>{{ item.assignedUser || 'Unassigned' }}</td>
-                                    <td class="serial-number">{{ item.computerSerialNumber || '—' }}</td>
-                                    <td class="actions">
-                                        <p-button
-                                            label="Edit"
-                                            type="button"
-                                            [text]="true"
-                                            size="small"
-                                            (onClick)="openPeripheralForm(item)"
-                                        />
-                                        <p-button
-                                            label="Delete"
-                                            type="button"
-                                            severity="danger"
-                                            [text]="true"
-                                            size="small"
-                                            (onClick)="deletePeripheral(item)"
-                                        />
-                                    </td>
-                                </tr>
-                            }
-                            @if (!filteredPeripherals().length) {
-                                <tr>
-                                    <td colspan="5" class="empty">
-                                        {{ peripheralComputerFilter() ? 'No peripherals are linked to this computer yet.' : 'No peripherals match this view.' }}
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            }
-        </section>
+                            </thead>
+                            <tbody>
+                                @for (item of filteredPeripherals(); track item.id) {
+                                    <tr>
+                                        <td>
+                                            <strong>{{ item.type }}</strong
+                                            ><span>{{ item.manufacturer }} {{ item.model }}</span>
+                                        </td>
+                                        <td class="serial-number">{{ item.serialNumber || '—' }}</td>
+                                        <td>{{ item.assignedUser || 'Unassigned' }}</td>
+                                        <td class="serial-number">{{ item.computerSerialNumber || '—' }}</td>
+                                        <td class="actions">
+                                            <p-button
+                                                label="Edit"
+                                                type="button"
+                                                [text]="true"
+                                                size="small"
+                                                (onClick)="openPeripheralForm(item)"
+                                            />
+                                            <p-button
+                                                label="Delete"
+                                                type="button"
+                                                severity="danger"
+                                                [text]="true"
+                                                size="small"
+                                                (onClick)="deletePeripheral(item)"
+                                            />
+                                        </td>
+                                    </tr>
+                                }
+                                @if (!filteredPeripherals().length) {
+                                    <tr>
+                                        <td colspan="5" class="empty">
+                                            {{
+                                                peripheralComputerFilter()
+                                                    ? 'No peripherals are linked to this computer yet.'
+                                                    : 'No peripherals match this view.'
+                                            }}
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </section>
         }
     </main>
 </div>
@@ -457,10 +628,10 @@
                         name="computerManufacturer"
                         [suggestions]="manufacturerSuggestions()"
                         [minLength]="1"
-                        (completeMethod)="suggestManufacturers($event.query)"
-                    /></label
+                        (completeMethod)="suggestManufacturers($event.query)" /></label
                 ><label
-                    >Model<div class="model-input-row">
+                    >Model
+                    <div class="model-input-row">
                         <p-autoComplete
                             styleClass="form-autocomplete"
                             [(ngModel)]="computerForm.model"
@@ -477,8 +648,8 @@
                             pTooltip="Sanitize"
                             tooltipPosition="top"
                             (onClick)="trimModelEdges()"
-                        ><svg data-p-icon="filter" aria-hidden="true"></svg></p-button>
-                    </div></label
+                            ><svg data-p-icon="filter" aria-hidden="true"></svg
+                        ></p-button></div></label
                 ><label
                     >Device type<p-select
                         [(ngModel)]="computerForm.machineType"
@@ -502,8 +673,7 @@
                         name="computerPrimaryUser"
                         [suggestions]="userSuggestions()"
                         [minLength]="1"
-                        (completeMethod)="suggestUsers($event.query)"
-                    /></label
+                        (completeMethod)="suggestUsers($event.query)" /></label
                 ><label
                     >PAR holder<p-autoComplete
                         styleClass="form-autocomplete"
@@ -511,8 +681,7 @@
                         name="computerParHolder"
                         [suggestions]="userSuggestions()"
                         [minLength]="1"
-                        (completeMethod)="suggestUsers($event.query)"
-                    /></label
+                        (completeMethod)="suggestUsers($event.query)" /></label
                 ><label
                     >Operating system<input
                         pInputText
@@ -538,45 +707,39 @@
                         [(ngModel)]="computerForm.details"
                         name="details"
                         rows="2"
-                    ></textarea>
-                </label
+                    ></textarea></label
                 ><label class="half-wide-field"
-                    >Remarks<textarea
-                        pTextarea
-                        [(ngModel)]="computerForm.remarks"
-                        name="remarks"
-                        rows="2"
-                    ></textarea>
+                    >Remarks<textarea pTextarea [(ngModel)]="computerForm.remarks" name="remarks" rows="2"></textarea>
                 </label>
             </div>
             <div class="dialog-actions computer-dialog-actions">
                 <div class="computer-dialog-actions-primary">
-                @if (editingComputerId()) {
-                    <p-button
-                        label="Manage Peripherals"
-                        type="button"
-                        severity="primary"
-                        (onClick)="manageComputerPeripherals()"
-                    />
-                }
+                    @if (editingComputerId()) {
+                        <p-button
+                            label="Manage Peripherals"
+                            type="button"
+                            severity="primary"
+                            (onClick)="manageComputerPeripherals()"
+                        />
+                    }
                 </div>
                 <div class="computer-dialog-actions-secondary">
-                <p-button
-                    label="Cancel"
-                    type="button"
-                    severity="secondary"
-                    [outlined]="true"
-                    (onClick)="showComputerForm.set(false)"
-                />
-                <p-button label="Save" type="submit" severity="primary" />
+                    <p-button
+                        label="Cancel"
+                        type="button"
+                        severity="secondary"
+                        [outlined]="true"
+                        (onClick)="showComputerForm.set(false)"
+                    />
+                    <p-button label="Save" type="submit" severity="primary" />
                 </div>
             </div>
         </form>
     </div>
 }
 @if (showPeripheralForm()) {
-<div class="backdrop">
-    <form class="dialog peripheral-dialog" (ngSubmit)="savePeripheral()">
+    <div class="backdrop">
+        <form class="dialog peripheral-dialog" (ngSubmit)="savePeripheral()">
             <div class="dialog-heading">
                 <div>
                     <p class="eyebrow">Peripheral record</p>
@@ -610,8 +773,7 @@
                         name="peripheralManufacturer"
                         [suggestions]="manufacturerSuggestions()"
                         [minLength]="1"
-                        (completeMethod)="suggestManufacturers($event.query)"
-                    /></label
+                        (completeMethod)="suggestManufacturers($event.query)" /></label
                 ><label
                     >Model<p-autoComplete
                         styleClass="form-autocomplete"
@@ -619,8 +781,7 @@
                         name="peripheralModel"
                         [suggestions]="modelSuggestions()"
                         [minLength]="1"
-                        (completeMethod)="suggestModels($event.query)"
-                    /></label
+                        (completeMethod)="suggestModels($event.query)" /></label
                 ><label
                     >Primary User<input
                         pInputText
