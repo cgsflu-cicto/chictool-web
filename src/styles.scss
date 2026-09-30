@@ -104,9 +104,14 @@ textarea,
     padding-block: 0 !important;
 }
 
-.hotspot-operation .database-operation-actions > p-button > button.hotspot-qr-button {
+.hotspot-operation .database-operation-actions > p-button > button.hotspot-qr-button,
+.hotspot-operation .database-operation-actions > p-button > button.hotspot-settings-button {
     width: 38px;
     padding-inline: 0 !important;
+}
+
+.hotspot-operation .hotspot-actions > p-button:first-child {
+    margin-right: auto;
 }
 
 .database-server-field {
@@ -115,6 +120,16 @@ textarea,
     font-size: .8rem;
     font-weight: 600;
     gap: 6px;
+}
+
+.hotspot-operation .p-password {
+    width: 100%;
+}
+
+.hotspot-operation .p-password-input {
+    box-sizing: border-box;
+    height: 40px;
+    width: 100%;
 }
 
 .database-operation-actions {

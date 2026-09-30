@@ -108,9 +108,10 @@ nav p-button {
 .hotspot-qr {
     background: #fff;
     display: block;
-    height: min(280px, 58vw);
+    flex: 0 1 auto;
+    height: min(180px, 45vw);
     max-width: 100%;
-    width: min(280px, 58vw);
+    width: min(180px, 45vw);
 }
 
 :host ::ng-deep .hotspot-operation {
@@ -126,7 +127,7 @@ nav p-button {
     gap: 14px;
     inset: 0;
     justify-content: center;
-    padding: 20px;
+    padding: 28px;
     position: absolute;
     z-index: 1;
 }

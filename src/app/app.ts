@@ -12,6 +12,7 @@ import { IconFieldModule } from '@openng/optimus-ui/iconfield';
 import { SearchIcon } from '@openng/optimus-ui/icons/search';
 import { InputIconModule } from '@openng/optimus-ui/inputicon';
 import { InputTextModule } from '@openng/optimus-ui/inputtext';
+import { PasswordModule } from '@openng/optimus-ui/password';
 import { SelectModule } from '@openng/optimus-ui/select';
 import { TextareaModule } from '@openng/optimus-ui/textarea';
 import { TooltipModule } from '@openng/optimus-ui/tooltip';
@@ -77,8 +78,9 @@ interface IncomingScan {
 }
 interface HotspotSettings {
     networkName: string;
+    password: string;
 }
-interface HotspotStatus { state: string; clientCount: number; networkName: string; }
+interface HotspotStatus { state: string; clientCount: number | null; networkName: string; }
 interface DesktopBridge {
     authState(): Promise<AuthState>;
     login(username: string, password: string): Promise<AuthState>;
@@ -96,7 +98,7 @@ interface DesktopBridge {
     syncDatabase(): Promise<DatabaseSyncResult>;
     resetDatabase(): Promise<{ computers: number; peripherals: number; collectionLogs: number; auditLogs: number }>;
     getHotspotSettings(): Promise<HotspotSettings>;
-    setHotspotName(networkName: string): Promise<HotspotSettings>;
+    setHotspotName(networkName: string, password: string): Promise<HotspotSettings>;
     openWindowsHotspotSettings(): Promise<void>;
     getHotspotStatus(): Promise<HotspotStatus>;
     startHotspot(networkName: string, password: string): Promise<HotspotStatus>;
@@ -144,7 +146,7 @@ const computers: Computer[] = [
 
 @Component({
     selector: 'app-root',
-    imports: [CommonModule, FormsModule, AutoCompleteModule, Button, CardModule, BarsIcon, FilterIcon, PlusIcon, ThLargeIcon, IconFieldModule, InputIconModule, SearchIcon, InputTextModule, SelectModule, TextareaModule, TooltipModule],
+    imports: [CommonModule, FormsModule, AutoCompleteModule, Button, CardModule, BarsIcon, FilterIcon, PlusIcon, ThLargeIcon, IconFieldModule, InputIconModule, SearchIcon, InputTextModule, PasswordModule, SelectModule, TextareaModule, TooltipModule],
     styleUrl: './app.scss',
     templateUrl: './app.html',
 })
@@ -350,6 +352,18 @@ export class App implements OnDestroy {
             this.databaseServerUrl.set(syncSettings.serverUrl);
             this.scanEndpoint.set(scanEndpoint);
             this.hotspotNetworkName.set(hotspotSettings.networkName);
+            this.hotspotPassword = hotspotSettings.password;
+            try {
+                const status = await api.getHotspotStatus();
+                this.hotspotStatus.set(status);
+                if (status.state === 'On') {
+                    this.hotspotMessage.set(`Hotspot is running as ${hotspotSettings.networkName}.`);
+                    this.hotspotMessageIsError.set(false);
+                }
+            } catch (error) {
+                this.hotspotMessage.set(error instanceof Error ? error.message : 'Could not read Mobile Hotspot status.');
+                this.hotspotMessageIsError.set(true);
+            }
             if (state.currentUser) await this.refreshDesktopData();
         } catch (error) {
             this.authError.set(error instanceof Error ? error.message : 'Could not open the local database.');
@@ -372,6 +386,22 @@ export class App implements OnDestroy {
     private async refreshScanEndpoint(): Promise<void> {
         const api = window.chictoolDesktop;
         if (api) this.scanEndpoint.set(await api.getScanEndpointInfo());
+    }
+    private async refreshHotspotAndScanEndpoint(): Promise<void> {
+        const api = window.chictoolDesktop;
+        if (!api) return;
+        try {
+            const status = await api.getHotspotStatus();
+            this.hotspotStatus.set(status);
+            if (status.state !== 'On') this.hotspotQrCode.set('');
+        } catch {
+            // Still refresh the endpoint list if Windows cannot report hotspot status.
+        }
+        try {
+            await this.refreshScanEndpoint();
+        } catch {
+            // Keep the last available endpoints if discovery temporarily fails.
+        }
     }
 
     protected changeView(view: 'inventory' | 'peripherals' | 'database'): void {
@@ -472,8 +502,9 @@ export class App implements OnDestroy {
         this.hotspotBusy.set(true);
         this.hotspotMessage.set('');
         try {
-            const settings = await api.setHotspotName(networkName);
+            const settings = await api.setHotspotName(networkName, this.hotspotPassword);
             this.hotspotNetworkName.set(settings.networkName);
+            this.hotspotPassword = settings.password;
             this.hotspotQrCode.set(
                 await toDataURL(`WIFI:T:WPA;S:${escapeWifiValue(settings.networkName)};P:${escapeWifiValue(this.hotspotPassword)};;`, {
                     errorCorrectionLevel: 'M',
@@ -481,7 +512,7 @@ export class App implements OnDestroy {
                     width: 280,
                 }),
             );
-            this.hotspotMessage.set('Scan this QR code with a phone camera to join the hotspot. The password is not saved.');
+            this.hotspotMessage.set('Scan the QR code with a phone camera to join the hotspot. The password is not saved.');
             this.hotspotMessageIsError.set(false);
         } catch (error) {
             this.hotspotMessage.set(error instanceof Error ? error.message : 'Could not create the hotspot QR code.');
@@ -495,16 +526,24 @@ export class App implements OnDestroy {
         if (!api) return;
         this.hotspotBusy.set(true);
         try {
-            const status = await api.startHotspot(this.hotspotNetworkName(), this.hotspotPassword);
+            const settings = await api.setHotspotName(this.hotspotNetworkName(), this.hotspotPassword);
+            this.hotspotNetworkName.set(settings.networkName);
+            this.hotspotPassword = settings.password;
+            const status = await api.startHotspot(settings.networkName, settings.password);
             this.hotspotStatus.set(status);
-            await this.refreshScanEndpoint();
             await this.showHotspotQrCode();
-            this.hotspotMessage.set(`Hotspot started. ${status.clientCount} device(s) connected.`);
+            const connectionCount = Number.isInteger(status.clientCount)
+                ? ` ${status.clientCount} device${status.clientCount === 1 ? '' : 's'} connected.`
+                : '';
+            this.hotspotMessage.set(`Hotspot started.${connectionCount}`);
             this.hotspotMessageIsError.set(false);
         } catch (error) {
             this.hotspotMessage.set(error instanceof Error ? error.message : 'Could not start Mobile Hotspot.');
             this.hotspotMessageIsError.set(true);
-        } finally { this.hotspotBusy.set(false); }
+        } finally {
+            await this.refreshHotspotAndScanEndpoint();
+            this.hotspotBusy.set(false);
+        }
     }
     protected async toggleHotspot(): Promise<void> {
         const api = window.chictoolDesktop;
@@ -529,13 +568,15 @@ export class App implements OnDestroy {
         try {
             this.hotspotStatus.set(await api.stopHotspot());
             this.hotspotQrCode.set('');
-            await this.refreshScanEndpoint();
             this.hotspotMessage.set('Hotspot stopped.');
             this.hotspotMessageIsError.set(false);
         } catch (error) {
             this.hotspotMessage.set(error instanceof Error ? error.message : 'Could not stop Mobile Hotspot.');
             this.hotspotMessageIsError.set(true);
-        } finally { this.hotspotBusy.set(false); }
+        } finally {
+            await this.refreshHotspotAndScanEndpoint();
+            this.hotspotBusy.set(false);
+        }
     }
     protected async openWindowsHotspotSettings(): Promise<void> {
         const api = window.chictoolDesktop;

@@ -316,10 +316,7 @@
                     </article>
                     <article class="database-operation hotspot-operation">
                         <h3>Mobile Hotspot</h3>
-                        <p>
-                            Set the Wi-Fi name used by the connection QR code, then use the same name and password in
-                            Windows Mobile Hotspot settings.
-                        </p>
+                        <p>Configure Windows Hotspot and share its connection QR code.</p>
                         <label class="database-server-field"
                             >Name (SSID)
                             <input
@@ -328,21 +325,21 @@
                                 (ngModelChange)="hotspotNetworkName.set($event)"
                                 name="hotspotNetworkName"
                                 maxlength="32"
-                                [disabled]="!desktop() || hotspotBusy()"
+                                [disabled]="!desktop() || hotspotBusy() || hotspotStatus()?.state === 'On'"
                             />
                         </label>
                         <label class="database-server-field"
                             >Password
-                            <input
-                                pInputText
-                                type="password"
+                            <p-password
                                 [(ngModel)]="hotspotPassword"
                                 name="hotspotPassword"
                                 autocomplete="new-password"
-                                [disabled]="!desktop() || hotspotBusy()"
+                                [feedback]="false"
+                                [toggleMask]="true"
+                                [disabled]="!desktop() || hotspotBusy() || hotspotStatus()?.state === 'On'"
                             />
                         </label>
-                        <div class="database-operation-actions">
+                        <div class="database-operation-actions hotspot-actions">
                             <p-button
                                 [label]="
                                     hotspotBusy() ? 'Working…' : hotspotStatus()?.state === 'On' ? 'Stop' : 'Start'
@@ -355,20 +352,36 @@
                                 (onClick)="toggleHotspot()"
                             />
                             <p-button
-                                label="Windows Hotspot"
+                                styleClass="hotspot-settings-button"
                                 type="button"
+                                ariaLabel="Open Windows Hotspot"
+                                pTooltip="Open Windows Hotspot"
+                                tooltipPosition="top"
                                 severity="secondary"
                                 [outlined]="true"
                                 [disabled]="!desktop() || hotspotBusy()"
                                 (onClick)="openWindowsHotspotSettings()"
-                            />
+                                ><svg
+                                    viewBox="0 0 24 24"
+                                    width="24"
+                                    height="24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="2"
+                                    stroke-linecap="round"
+                                    aria-hidden="true"
+                                >
+                                    <path d="M5 9a10 10 0 0 1 14 0"></path>
+                                    <path d="M8 12a6 6 0 0 1 8 0"></path>
+                                    <path d="M11 15a2 2 0 0 1 2 0"></path>
+                                    <circle cx="12" cy="18" r="1" fill="currentColor" stroke="none"></circle></svg
+                            ></p-button>
                             <p-button
                                 styleClass="hotspot-qr-button"
                                 type="button"
                                 ariaLabel="Show connection QR code"
                                 pTooltip="Show connection QR code"
                                 tooltipPosition="top"
-                                [loading]="hotspotBusy()"
                                 [disabled]="!desktop() || hotspotBusy()"
                                 (onClick)="showHotspotQrCode()"
                                 ><svg viewBox="0 0 24 24" width="28" height="28" fill="currentColor" aria-hidden="true">
@@ -377,11 +390,6 @@
                                     /></svg
                             ></p-button>
                         </div>
-                        @if (hotspotMessage()) {
-                            <p class="database-message" [class.error]="hotspotMessageIsError()" role="status">
-                                {{ hotspotMessage() }}
-                            </p>
-                        }
                         @if (hotspotQrCode()) {
                             <div class="hotspot-qr-overlay">
                                 <h3>Scan to Connect</h3>
