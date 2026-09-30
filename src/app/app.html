@@ -289,31 +289,6 @@
                             (onClick)="resetSqliteDatabase()"
                         />
                     </article>
-                    <article class="database-operation scan-operation">
-                        <h3>Code Scanner Webhook</h3>
-                        <p>
-                            Send a scanned code to the currently focused text field. It replaces that field's contents.
-                        </p>
-                        @if (scanEndpoint().enabled) {
-                            @if (scanEndpoint().urls.length) {
-                                <div class="scan-endpoint-list">
-                                    @for (url of scanEndpoint().urls; track url) {
-                                        <code>{{ url }}</code>
-                                    }
-                                </div>
-                            } @else {
-                                <code>http://&lt;this-PC-LAN-IP&gt;:{{ scanEndpoint().port }}/scan</code>
-                            }
-                            <p>
-                                POST JSON: <code>{{ '{"codevalue":"SCANNED-CODE"}' }}</code>
-                            </p>
-                            <!-- <p class="scan-warning">No authentication is enabled. Any device that can reach this port can enter text into the focused field; do not expose or forward this port to the internet.</p> -->
-                        } @else {
-                            <p class="error-message">
-                                {{ scanEndpoint().error || 'The scan endpoint is not available.' }}
-                            </p>
-                        }
-                    </article>
                     <article class="database-operation hotspot-operation">
                         <h3>Mobile Hotspot</h3>
                         <p>Configure Windows Hotspot and share its connection QR code.</p>
@@ -406,6 +381,36 @@
                                     (onClick)="closeHotspotQrCode()"
                                 />
                             </div>
+                        }
+                    </article>
+                    <article class="database-operation scan-operation">
+                        <h3>Code Scanner Webhook</h3>
+                        <p>Use the endpoint matching your device’s network to send scanned codes to the focused field.</p>
+                        @if (scanEndpoint().enabled) {
+                            @if (scanEndpoint().urls.length) {
+                                <div class="scan-endpoint-list">
+                                    @for (endpoint of scanEndpoint().endpoints ?? []; track endpoint.url) {
+                                        <div class="scan-endpoint-row">
+                                            <span class="scan-endpoint-name">{{ endpoint.networkName }}</span>
+                                            <span class="scan-endpoint-interface"
+                                                >{{ endpoint.interfaceName }} · {{ endpoint.address }}</span
+                                            >
+                                            <code>{{ endpoint.url }}</code>
+                                        </div>
+                                    }
+                                    @if (!scanEndpoint().endpoints?.length) {
+                                        @for (url of scanEndpoint().urls; track url) {
+                                            <code>{{ url }}</code>
+                                        }
+                                    }
+                                </div>
+                            } @else {
+                                <code>http://&lt;this-PC-LAN-IP&gt;:{{ scanEndpoint().port }}/scan</code>
+                            }
+                        } @else {
+                            <p class="error-message">
+                                {{ scanEndpoint().error || 'The scan endpoint is not available.' }}
+                            </p>
                         }
                     </article>
                 </div>

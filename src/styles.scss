@@ -151,6 +151,22 @@ textarea,
     gap: 7px;
 }
 
+.scan-endpoint-row {
+    display: grid;
+    gap: 4px;
+}
+
+.scan-endpoint-name {
+    color: #344054;
+    font-size: .85rem;
+    font-weight: 650;
+}
+
+.scan-endpoint-interface {
+    color: #66758a;
+    font-size: .75rem;
+}
+
 .scan-operation {
     code {
         background: #f1f5f9;

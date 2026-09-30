@@ -70,6 +70,7 @@ interface ScanEndpointInfo {
     enabled: boolean;
     port: number;
     urls: string[];
+    endpoints?: { interfaceName: string; networkName: string; address: string; url: string }[];
     error: string;
 }
 interface IncomingScan {
