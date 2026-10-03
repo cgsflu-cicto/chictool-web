@@ -208,7 +208,7 @@ export class App implements OnDestroy {
     protected readonly databaseBusy = signal(false);
     protected readonly databaseMessage = signal('');
     protected readonly databaseMessageIsError = signal(false);
-    protected readonly scanEndpoint = signal<ScanEndpointInfo>({ enabled: false, port: 47831, urls: [], error: '' });
+    protected readonly scanEndpoint = signal<ScanEndpointInfo>({ enabled: false, port: 4783, urls: [], error: '' });
     protected readonly hotspotNetworkName = signal('CHICTool');
     protected hotspotPassword = '';
     protected readonly hotspotQrCode = signal('');
