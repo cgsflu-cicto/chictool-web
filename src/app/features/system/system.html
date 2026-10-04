@@ -1,0 +1,170 @@
+<section class="database-operations">
+    @if (!desktop()) {
+        <p class="database-message error">Database operations are available in the Electron desktop app.</p>
+    }
+    @if (databaseMessage()) {
+        <p class="database-message" [class.error]="databaseMessageIsError()" role="status">
+            {{ databaseMessage() }}
+        </p>
+    }
+    <div class="database-operation-grid">
+        <article class="database-operation">
+            <h3>Server Sync</h3>
+            <p>
+                Download the canonical lookup values to this device, then upload local computers and peripherals to the
+                server.
+            </p>
+            <label class="database-server-field"
+                >Server URL
+                <input
+                    pInputText
+                    type="url"
+                    placeholder="https://chictool.sanfernandocity.gov.ph"
+                    [ngModel]="databaseServerUrl()"
+                    (ngModelChange)="databaseServerUrl.set($event)"
+                    name="databaseServerUrl"
+                    [disabled]="!desktop() || databaseBusy()"
+                />
+            </label>
+            <div class="database-operation-actions">
+                <p-button
+                    [label]="databaseBusy() ? 'Working…' : 'Save Server'"
+                    type="button"
+                    severity="secondary"
+                    [outlined]="true"
+                    [disabled]="!desktop() || databaseBusy()"
+                    (onClick)="saveDatabaseServer()"
+                />
+                <p-button
+                    [label]="databaseBusy() ? 'Working…' : 'Sync'"
+                    type="button"
+                    [loading]="databaseBusy()"
+                    [disabled]="!desktop() || !databaseServerUrl() || databaseBusy()"
+                    (onClick)="syncDatabase()"
+                />
+            </div>
+        </article>
+        <article class="database-operation danger-operation">
+            <h3>Reset Local Database</h3>
+            <p>
+                Permanently delete local computer and peripheral records. User accounts and lookup values remain; the
+                sync server is not changed.
+            </p>
+            <p-button
+                [label]="databaseBusy() ? 'Working…' : 'Reset'"
+                type="button"
+                severity="danger"
+                [outlined]="true"
+                [loading]="databaseBusy()"
+                [disabled]="!desktop() || databaseBusy()"
+                (onClick)="resetSqliteDatabase()"
+            />
+        </article>
+        <article class="database-operation hotspot-operation">
+            <h3>Mobile Hotspot</h3>
+            <p>Configure Windows Hotspot and share its connection QR code.</p>
+            <label class="database-server-field"
+                >Name (SSID)
+                <input
+                    pInputText
+                    [ngModel]="hotspotNetworkName()"
+                    (ngModelChange)="hotspotNetworkName.set($event)"
+                    name="hotspotNetworkName"
+                    maxlength="32"
+                    [disabled]="!desktop() || hotspotBusy() || hotspotStatus()?.state === 'On'"
+                />
+            </label>
+            <label class="database-server-field"
+                >Password
+                <p-password
+                    [(ngModel)]="hotspotPassword"
+                    name="hotspotPassword"
+                    autocomplete="new-password"
+                    [feedback]="false"
+                    [toggleMask]="true"
+                    [disabled]="!desktop() || hotspotBusy() || hotspotStatus()?.state === 'On'"
+                />
+            </label>
+            <div class="database-operation-actions hotspot-actions">
+                <p-button
+                    [label]="hotspotBusy() ? 'Working…' : hotspotStatus()?.state === 'On' ? 'Stop' : 'Start'"
+                    type="button"
+                    [severity]="hotspotStatus()?.state === 'On' ? 'danger' : 'primary'"
+                    [outlined]="hotspotStatus()?.state === 'On'"
+                    [loading]="hotspotBusy()"
+                    [disabled]="!desktop() || hotspotBusy()"
+                    (onClick)="toggleHotspot()"
+                />
+                <p-button
+                    styleClass="hotspot-settings-button"
+                    type="button"
+                    ariaLabel="Open Windows Hotspot"
+                    pTooltip="Open Windows Hotspot"
+                    tooltipPosition="top"
+                    severity="secondary"
+                    [outlined]="true"
+                    [disabled]="!desktop() || hotspotBusy()"
+                    (onClick)="openWindowsHotspotSettings()"
+                    icon="pi pi-wifi"
+                />
+                <p-button
+                    styleClass="hotspot-qr-button"
+                    type="button"
+                    ariaLabel="Show connection QR code"
+                    pTooltip="Show connection QR code"
+                    tooltipPosition="top"
+                    [disabled]="!desktop() || hotspotBusy()"
+                    (onClick)="showHotspotQrCode()"
+                    icon="pi pi-qrcode"
+                />
+            </div>
+            @if (hotspotQrCode()) {
+                <div class="hotspot-qr-overlay">
+                    <h3>Scan to Connect</h3>
+                    <img
+                        class="hotspot-qr"
+                        [src]="hotspotQrCode()"
+                        alt="QR code to connect to {{ hotspotNetworkName() }}"
+                    />
+                    <p-button
+                        label="Close"
+                        type="button"
+                        severity="secondary"
+                        [outlined]="true"
+                        (onClick)="closeHotspotQrCode()"
+                    />
+                </div>
+            }
+        </article>
+        <article class="database-operation scan-operation">
+            <h3>Code Scanner Webhook</h3>
+            <p>Use the endpoint matching your device’s network to send scanned codes to the focused field.</p>
+            @if (scanEndpoint().enabled) {
+                @if (scanEndpoint().urls.length) {
+                    <div class="scan-endpoint-list">
+                        @for (endpoint of scanEndpoint().endpoints ?? []; track endpoint.url) {
+                            <div class="scan-endpoint-row">
+                                <span class="scan-endpoint-name">{{ endpoint.networkName }}</span>
+                                <span class="scan-endpoint-interface"
+                                    >{{ endpoint.interfaceName }} · {{ endpoint.address }}</span
+                                >
+                                <code>{{ endpoint.url }}</code>
+                            </div>
+                        }
+                        @if (!scanEndpoint().endpoints?.length) {
+                            @for (url of scanEndpoint().urls; track url) {
+                                <code>{{ url }}</code>
+                            }
+                        }
+                    </div>
+                } @else {
+                    <code>http://&lt;this-PC-LAN-IP&gt;:{{ scanEndpoint().port }}/scan</code>
+                }
+            } @else {
+                <p class="error-message">
+                    {{ scanEndpoint().error || 'The scan endpoint is not available.' }}
+                </p>
+            }
+        </article>
+    </div>
+</section>

@@ -1,0 +1,179 @@
+<section class="summary">
+    <p-card>
+        <span>Total peripherals</span><strong>{{ peripherals().length }}</strong
+        ><small>Tracked accessories</small>
+    </p-card>
+    <p-card>
+        <span>Assigned</span><strong>{{ assignedCount() }}</strong
+        ><small>Linked to computers</small>
+    </p-card>
+    <p-card>
+        <span>Unassigned</span><strong>{{ peripherals().length - assignedCount() }}</strong
+        ><small>Available inventory</small>
+    </p-card>
+</section>
+
+<section class="panel">
+    <div class="toolbar">
+        <p-iconfield class="search">
+            <p-inputicon class="pi pi-search" />
+            <input
+                pInputText
+                type="search"
+                autocomplete="off"
+                [ngModel]="query()"
+                (ngModelChange)="query.set($event)"
+                placeholder="Search Inventory"
+            />
+        </p-iconfield
+        ><p-button
+            label="Add Peripheral"
+            icon="pi pi-plus"
+            type="button"
+            severity="primary"
+            (onClick)="openPeripheralForm()"
+        />
+    </div>
+    @if (peripheralFilterComputer(); as computer) {
+        <div class="linked-computer-filter">
+            <span
+                >Showing peripherals for <strong>{{ computer.serialNumber }}</strong></span
+            ><p-button
+                label="Show All"
+                type="button"
+                severity="secondary"
+                [text]="true"
+                (onClick)="clearPeripheralComputerFilter()"
+            />
+        </div>
+    }
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Peripheral</th>
+                    <th>Serial Number</th>
+                    <th>Primary User</th>
+                    <th>Linked Computer</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (item of filteredPeripherals(); track item.id) {
+                    <tr>
+                        <td>
+                            <strong>{{ item.type }}</strong
+                            ><span>{{ item.manufacturer }} {{ item.model }}</span>
+                        </td>
+                        <td class="serial-number">{{ item.serialNumber || '—' }}</td>
+                        <td>{{ item.assignedUser || 'Unassigned' }}</td>
+                        <td class="serial-number">{{ item.computerSerialNumber || '—' }}</td>
+                        <td class="actions">
+                            <p-button
+                                label="Edit"
+                                type="button"
+                                [text]="true"
+                                size="small"
+                                (onClick)="openPeripheralForm(item)"
+                            />
+                            <p-button
+                                label="Delete"
+                                type="button"
+                                severity="danger"
+                                [text]="true"
+                                size="small"
+                                (onClick)="deletePeripheral(item)"
+                            />
+                        </td>
+                    </tr>
+                }
+                @if (!filteredPeripherals().length) {
+                    <tr>
+                        <td colspan="5" class="empty">
+                            {{
+                                peripheralComputerFilter()
+                                    ? 'No peripherals are linked to this computer yet.'
+                                    : 'No peripherals match this view.'
+                            }}
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>
+@if (showPeripheralForm()) {
+    <div class="backdrop">
+        <form class="dialog peripheral-dialog" (ngSubmit)="savePeripheral()">
+            <div class="dialog-heading">
+                <div>
+                    <p class="eyebrow">Peripheral record</p>
+                    <!-- <h2>{{ editingPeripheralId() ? 'Edit Peripheral' : 'Add Peripheral' }}</h2> -->
+                </div>
+                <p-button
+                    label="×"
+                    type="button"
+                    severity="secondary"
+                    [text]="true"
+                    (onClick)="showPeripheralForm.set(false)"
+                />
+            </div>
+            <div class="form-grid">
+                <label
+                    >Type<p-select
+                        [(ngModel)]="peripheralForm.type"
+                        name="type"
+                        [options]="lookups()['peripheral_type']"
+                        optionLabel="label"
+                        optionValue="value" /></label
+                ><label
+                    >Serial Number<input
+                        pInputText
+                        [(ngModel)]="peripheralForm.serialNumber"
+                        name="serialNumber" /></label
+                ><label
+                    >Manufacturer<p-autoComplete
+                        styleClass="form-autocomplete"
+                        [(ngModel)]="peripheralForm.manufacturer"
+                        name="peripheralManufacturer"
+                        [suggestions]="manufacturerSuggestions()"
+                        [minLength]="1"
+                        (completeMethod)="suggestManufacturers($event.query)" /></label
+                ><label
+                    >Model<p-autoComplete
+                        styleClass="form-autocomplete"
+                        [(ngModel)]="peripheralForm.model"
+                        name="peripheralModel"
+                        [suggestions]="modelSuggestions()"
+                        [minLength]="1"
+                        (completeMethod)="suggestModels($event.query)" /></label
+                ><label
+                    >Primary User<input
+                        pInputText
+                        [(ngModel)]="peripheralForm.assignedUser"
+                        name="assignedUser" /></label
+                ><label
+                    >Linked Computer<p-select
+                        [(ngModel)]="peripheralForm.computerId"
+                        name="computerId"
+                        [options]="computers()"
+                        optionLabel="serialNumber"
+                        optionValue="id"
+                        placeholder="Not linked"
+                        [editable]="true"
+                        [disabled]="!!peripheralComputerFilter()"
+                /></label>
+            </div>
+            <div class="dialog-actions">
+                <p-button
+                    label="Cancel"
+                    type="button"
+                    severity="secondary"
+                    [outlined]="true"
+                    (onClick)="showPeripheralForm.set(false)"
+                />
+                <p-button label="Save" type="submit" severity="primary" />
+            </div>
+        </form>
+    </div>
+}

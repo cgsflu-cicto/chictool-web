@@ -1,0 +1,70 @@
+:host {
+    .auth-backdrop {
+        align-items: center;
+        background: #0c2137;
+        display: flex;
+        inset: 0;
+        justify-content: center;
+        padding: 20px;
+        position: fixed;
+        z-index: 20;
+    }
+
+    .auth-dialog {
+        background: #fff;
+        border-radius: 12px;
+        box-shadow: 0 24px 64px #0004;
+        display: grid;
+        gap: 14px;
+        max-width: 420px;
+        padding: 24px;
+        width: 100%;
+
+        .eyebrow,
+        h2 {
+            margin: 0;
+        }
+
+        .eyebrow {
+            color: #66758a;
+            font-size: 0.68rem;
+            font-weight: 750;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        h2 {
+            color: #172b4d;
+            font-size: 1.4rem;
+            letter-spacing: -0.035em;
+        }
+
+        label {
+            color: #46566d;
+            display: grid;
+            font-size: 0.8rem;
+            font-weight: 700;
+            gap: 6px;
+        }
+
+        input {
+            background: #fff;
+            border: 1px solid #d8e0e8;
+            border-radius: 6px;
+            color: #27364b;
+            font: inherit;
+            font-size: var(--chictool-control-font-size);
+            height: 40px;
+            min-height: 40px;
+            outline-color: #1b9b92;
+            padding: 0 10px;
+            width: 100%;
+        }
+    }
+
+    .error-message {
+        color: #bd303c;
+        font-size: 0.83rem;
+        margin: 0;
+    }
+}

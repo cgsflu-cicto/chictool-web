@@ -1,0 +1,354 @@
+<section class="summary">
+    <p-card>
+        <span>Total computers</span><strong>{{ computers().length }}</strong
+        ><small>Managed assets</small>
+    </p-card>
+    <p-card>
+        <span>Laptops</span><strong>{{ laptopCount() }}</strong
+        ><small>Portable workstations</small>
+    </p-card>
+    <p-card>
+        <span>Offices</span><strong>{{ offices().length }}</strong
+        ><small>Active locations</small>
+    </p-card>
+</section>
+
+@if (desktop()) {
+    <section class="capture-panel">
+        <div class="form-grid">
+            <label
+                >Capture From<p-select
+                    [(ngModel)]="captureMode"
+                    name="captureMode"
+                    [options]="captureModes"
+                    optionLabel="label"
+                    optionValue="value"
+            /></label>
+            <label
+                >Hostname / IP<input
+                    pInputText
+                    [(ngModel)]="captureHostname"
+                    name="captureHostname"
+                    [disabled]="captureMode !== 'remote'"
+            /></label>
+            <label
+                >Username<input
+                    pInputText
+                    [(ngModel)]="captureUsername"
+                    name="captureUsername"
+                    autocomplete="username"
+                    [disabled]="captureMode !== 'remote'"
+            /></label>
+            <label
+                >Password<input
+                    pInputText
+                    type="password"
+                    [(ngModel)]="capturePassword"
+                    name="capturePassword"
+                    autocomplete="new-password"
+                    [disabled]="captureMode !== 'remote'"
+            /></label>
+        </div>
+        @if (captureMessage()) {
+            <p role="status">{{ captureMessage() }}</p>
+        }
+        <div class="capture-actions">
+            <p-button
+                [label]="captureBusy() ? 'Capturing…' : 'Capture'"
+                type="button"
+                [loading]="captureBusy()"
+                (onClick)="captureComputer()"
+            />
+            @if (captureResult()) {
+                <p-button
+                    label="Load Captured"
+                    type="button"
+                    severity="secondary"
+                    [outlined]="true"
+                    (onClick)="loadCapturedDetails()"
+                />
+                @if (matchedCapturedComputer(); as savedComputer) {
+                    <p-button
+                        label="Load Saved"
+                        type="button"
+                        severity="secondary"
+                        [outlined]="true"
+                        (onClick)="loadSavedDetails()"
+                    />
+                }
+            }
+            @if (captureMode === 'remote') {
+                <div class="capture-remote-actions">
+                    <p-button
+                        [label]="setupBusy() ? 'Preparing…' : 'Download Setup'"
+                        type="button"
+                        severity="secondary"
+                        [outlined]="true"
+                        [disabled]="setupBusy()"
+                        (onClick)="downloadTargetSetup()"
+                    />
+                    <p-button
+                        [label]="trustBusy() ? 'Trusting…' : 'Trust Target'"
+                        type="button"
+                        severity="secondary"
+                        [outlined]="true"
+                        [disabled]="!captureHostname.trim() || trustBusy()"
+                        (onClick)="trustTarget()"
+                    />
+                </div>
+            }
+        </div>
+    </section>
+}
+
+<section class="panel">
+    <div class="toolbar">
+        <p-iconfield class="search">
+            <p-inputicon class="pi pi-search" />
+            <input
+                pInputText
+                type="search"
+                autocomplete="off"
+                [ngModel]="query()"
+                (ngModelChange)="query.set($event)"
+                placeholder="Search Inventory"
+            />
+        </p-iconfield
+        ><p-select
+            [options]="offices()"
+            [ngModel]="office()"
+            (ngModelChange)="office.set($event)"
+            placeholder="All Offices"
+            ariaLabel="Filter by office"
+        /><p-button
+            label="Add Computer"
+            icon="pi pi-plus"
+            type="button"
+            severity="primary"
+            (onClick)="openComputerForm()"
+        />
+    </div>
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Computer</th>
+                    <th>Type</th>
+                    <th>Primary User / PAR Holder</th>
+                    <th>Office</th>
+                    <th>Peripherals</th>
+                    <th>Acquired on</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @for (item of filteredComputers(); track item.id) {
+                    <tr>
+                        <td>
+                            <strong class="serial-number">{{ item.serialOverride || item.serialNumber }}</strong
+                            ><span
+                                >{{ item.manufacturer }} {{ item.model }}
+                                @if (item.hostname) {
+                                    · {{ item.hostname }}
+                                }
+                            </span>
+                        </td>
+                        <td>
+                            <span class="tag">{{ item.machineType }}</span>
+                        </td>
+                        <td>
+                            {{
+                                item.primaryUser === item.parHolder || !item.parHolder
+                                    ? item.primaryUser || '—'
+                                    : !item.primaryUser
+                                      ? item.parHolder
+                                      : item.primaryUser + ' / ' + item.parHolder
+                            }}
+                        </td>
+                        <td>{{ item.office }}</td>
+                        <td class="peripheral-count-cell">
+                            <div class="peripheral-count-action">
+                                <span class="peripheral-count-value">{{ peripheralCounts().get(item.id) ?? 0 }}</span>
+                                <p-button
+                                    label="Manage"
+                                    type="button"
+                                    size="small"
+                                    [text]="true"
+                                    (onClick)="managePeripherals(item.id)"
+                                />
+                            </div>
+                        </td>
+                        <td>{{ item.acquiredOn || '—' }}</td>
+                        <td class="actions">
+                            <p-button
+                                label="Edit"
+                                type="button"
+                                [text]="true"
+                                size="small"
+                                (onClick)="openComputerForm(item)"
+                            />
+                            <p-button
+                                label="Delete"
+                                type="button"
+                                severity="danger"
+                                [text]="true"
+                                size="small"
+                                (onClick)="deleteComputer(item)"
+                            />
+                        </td>
+                    </tr>
+                }
+                @if (!filteredComputers().length) {
+                    <tr>
+                        <td colspan="7" class="empty">No computers match this view.</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</section>
+@if (showComputerForm()) {
+    <div class="backdrop">
+        <form class="dialog computer-dialog" (ngSubmit)="saveComputer()">
+            <div class="dialog-heading">
+                <div>
+                    <p class="eyebrow">{{ editingComputerId() ? 'Edit Computer' : 'Add Computer' }}</p>
+                    <!-- <h2>{{ editingComputerId() ? 'Edit computer' : 'Add computer' }}</h2> -->
+                </div>
+                <p-button
+                    label="×"
+                    type="button"
+                    severity="secondary"
+                    [text]="true"
+                    (onClick)="showComputerForm.set(false)"
+                />
+            </div>
+            <div class="form-grid">
+                <label
+                    >Serial Number<input
+                        pInputText
+                        [(ngModel)]="computerForm.serialNumber"
+                        name="serialNumber"
+                        readonly
+                        required /></label
+                ><label
+                    >Serial override<input
+                        pInputText
+                        [(ngModel)]="computerForm.serialOverride"
+                        name="serialOverride" /></label
+                ><label
+                    >Manufacturer<p-autoComplete
+                        styleClass="form-autocomplete"
+                        [(ngModel)]="computerForm.manufacturer"
+                        name="computerManufacturer"
+                        [suggestions]="manufacturerSuggestions()"
+                        [minLength]="1"
+                        (completeMethod)="suggestManufacturers($event.query)" /></label
+                ><label
+                    >Model
+                    <div class="model-input-row">
+                        <p-autoComplete
+                            styleClass="form-autocomplete"
+                            [(ngModel)]="computerForm.model"
+                            name="computerModel"
+                            [suggestions]="modelSuggestions()"
+                            [minLength]="1"
+                            (completeMethod)="suggestModels($event.query)"
+                        />
+                        <p-button
+                            type="button"
+                            severity="secondary"
+                            [outlined]="true"
+                            ariaLabel="Trim non-alphanumeric characters from the start and end of the model"
+                            pTooltip="Sanitize"
+                            tooltipPosition="top"
+                            (onClick)="trimModelEdges()"
+                            icon="pi pi-filter"
+                        /></div></label
+                ><label
+                    >Device type<p-select
+                        [(ngModel)]="computerForm.machineType"
+                        name="machineType"
+                        [options]="lookups()['device_type']"
+                        optionLabel="label"
+                        optionValue="value" /></label
+                ><label
+                    >Office<p-select
+                        [(ngModel)]="computerForm.office"
+                        name="office"
+                        [options]="lookups()['office']"
+                        optionLabel="label"
+                        optionValue="value"
+                        placeholder="Select office"
+                        required /></label
+                ><label
+                    >Primary user<p-autoComplete
+                        styleClass="form-autocomplete"
+                        [(ngModel)]="computerForm.primaryUser"
+                        name="computerPrimaryUser"
+                        [suggestions]="userSuggestions()"
+                        [minLength]="1"
+                        (completeMethod)="suggestUsers($event.query)" /></label
+                ><label
+                    >PAR holder<p-autoComplete
+                        styleClass="form-autocomplete"
+                        [(ngModel)]="computerForm.parHolder"
+                        name="computerParHolder"
+                        [suggestions]="userSuggestions()"
+                        [minLength]="1"
+                        (completeMethod)="suggestUsers($event.query)" /></label
+                ><label
+                    >Operating system<input
+                        pInputText
+                        [(ngModel)]="computerForm.operatingSystem"
+                        name="operatingSystem" /></label
+                ><label>Processor<input pInputText [(ngModel)]="computerForm.processor" name="processor" /></label
+                ><label>Storage<input pInputText [(ngModel)]="computerForm.storage" name="storage" /></label
+                ><label>Memory<input pInputText [(ngModel)]="computerForm.memory" name="memory" /></label
+                ><label>Graphics<input pInputText [(ngModel)]="computerForm.gpu" name="gpu" /></label
+                ><label>Hostname / IP<input pInputText [(ngModel)]="computerForm.hostname" name="hostname" /></label
+                ><label>MAC address<input pInputText [(ngModel)]="computerForm.macAddress" name="macAddress" /></label
+                ><label
+                    >Acquired on<input
+                        pInputText
+                        type="text"
+                        [(ngModel)]="computerForm.acquiredOn"
+                        name="acquiredOn"
+                        placeholder="YYYY / YYYY-MM / YYYY-MM-DD"
+                        pattern="[0-9]{4}(-[0-9]{2}(-[0-9]{2})?)?" /></label
+                ><label class="half-wide-field"
+                    >Hardware details<textarea
+                        pTextarea
+                        [(ngModel)]="computerForm.details"
+                        name="details"
+                        rows="2"
+                    ></textarea></label
+                ><label class="half-wide-field"
+                    >Remarks<textarea pTextarea [(ngModel)]="computerForm.remarks" name="remarks" rows="2"></textarea>
+                </label>
+            </div>
+            <div class="dialog-actions computer-dialog-actions">
+                <div class="computer-dialog-actions-primary">
+                    @if (editingComputerId()) {
+                        <p-button
+                            label="Manage Peripherals"
+                            type="button"
+                            severity="primary"
+                            (onClick)="manageComputerPeripherals()"
+                        />
+                    }
+                </div>
+                <div class="computer-dialog-actions-secondary">
+                    <p-button
+                        label="Cancel"
+                        type="button"
+                        severity="secondary"
+                        [outlined]="true"
+                        (onClick)="showComputerForm.set(false)"
+                    />
+                    <p-button label="Save" type="submit" severity="primary" />
+                </div>
+            </div>
+        </form>
+    </div>
+}
