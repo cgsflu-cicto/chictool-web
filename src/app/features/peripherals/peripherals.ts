@@ -71,6 +71,7 @@ export class Peripherals {
                     item.manufacturer,
                     item.model,
                     item.assignedUser,
+                    item.remarks,
                     item.computerSerialNumber,
                 ]),
         );
@@ -90,6 +91,7 @@ export class Peripherals {
                 ...this.blankPeripheral(),
                 computerId: selectedComputer?.id ?? '',
                 computerSerialNumber: selectedComputer?.serialNumber ?? '',
+                assignedUser: selectedComputer?.primaryUser ?? '',
             };
         }
         this.showPeripheralForm.set(true);
@@ -191,6 +193,7 @@ export class Peripherals {
             model: '',
             serialNumber: '',
             assignedUser: '',
+            remarks: '',
             computerSerialNumber: '',
             computerId: '',
         };
