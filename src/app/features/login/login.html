@@ -23,7 +23,18 @@
             @if (authError()) {
                 <p class="error-message">{{ authError() }}</p>
             }
-            <p-button [label]="hasUsers() ? 'Sign in' : 'Create account'" type="submit" severity="primary" />
+            <div class="auth-actions">
+                <p-button [label]="hasUsers() ? 'Sign In' : 'Create account'" type="submit" severity="primary" />
+                @if (desktop()) {
+                    <p-button
+                        label="Push Mode"
+                        type="button"
+                        severity="secondary"
+                        [outlined]="true"
+                        (onClick)="openPushMode()"
+                    />
+                }
+            </div>
         </form>
     </div>
 }

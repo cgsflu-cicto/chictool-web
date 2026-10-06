@@ -21,7 +21,8 @@ export class App implements OnDestroy {
     readonly desktop = this.state.desktop;
     readonly currentUser = this.state.currentUser;
     readonly authError = this.state.authError;
-    readonly activeView = signal<'inventory' | 'peripherals' | 'database' | 'login'>('inventory');
+    readonly activeView = signal<'inventory' | 'peripherals' | 'database' | 'login' | 'push-mode' | 'push-inbox'>('inventory');
+    private removePushListener?: () => void;
 
     constructor() {
         this.routeSubscription = this.router.events.subscribe((event) => {
@@ -29,11 +30,19 @@ export class App implements OnDestroy {
         });
         this.syncActiveView(this.router.url);
         void this.session.initialize();
+        const bridge = this.state.bridge;
+        if (bridge) {
+            this.removePushListener = bridge.onPushReceived(() => void this.router.navigateByUrl('/push-inbox'));
+            void bridge.getPushInbox().then((items) => {
+                if (items.length) void this.router.navigateByUrl('/push-inbox');
+            });
+        }
         void this.scanInput;
     }
 
     ngOnDestroy(): void {
         this.routeSubscription.unsubscribe();
+        this.removePushListener?.();
     }
 
     changeView(view: 'inventory' | 'peripherals' | 'database'): void {
@@ -41,6 +50,8 @@ export class App implements OnDestroy {
         const path = view === 'inventory' ? '/computers' : view === 'peripherals' ? '/peripherals' : '/system';
         void this.router.navigateByUrl(path);
     }
+
+    openPushInbox(): void { void this.router.navigateByUrl('/push-inbox'); }
 
     dismissError(): void {
         this.authError.set('');
@@ -51,11 +62,15 @@ export class App implements OnDestroy {
         const view =
             segment === 'login'
                 ? 'login'
-                : segment === 'peripherals'
-                  ? 'peripherals'
-                  : segment === 'system'
-                    ? 'database'
-                    : 'inventory';
+                : segment === 'push-mode'
+                  ? 'push-mode'
+                  : segment === 'push-inbox'
+                    ? 'push-inbox'
+                    : segment === 'peripherals'
+                      ? 'peripherals'
+                      : segment === 'system'
+                        ? 'database'
+                        : 'inventory';
         this.activeView.set(view);
     }
 }

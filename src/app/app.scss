@@ -14,6 +14,10 @@
         &[hidden] {
             display: none;
         }
+
+        &.push-mode {
+            grid-template-columns: minmax(0, 1fr);
+        }
     }
 
     .sidebar {

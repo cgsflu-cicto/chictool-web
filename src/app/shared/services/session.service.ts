@@ -18,10 +18,13 @@ export class SessionService {
             this.state.currentUser.set(auth.currentUser);
             this.state.lookups.set(lookups);
             if (auth.currentUser) {
-                if (this.router.url === '/login') await this.router.navigateByUrl('/computers');
+                if (this.router.url.startsWith('/login')) {
+                    const returnUrl = new URLSearchParams(this.router.url.split('?')[1] || '').get('returnUrl');
+                    await this.router.navigateByUrl(returnUrl || '/computers');
+                }
                 await this.state.refreshDesktopData();
             } else {
-                await this.router.navigateByUrl('/login');
+                if (!['/push-mode', '/push-inbox'].includes(this.router.url)) await this.router.navigateByUrl('/login');
             }
         } catch (error) {
             this.state.authError.set(error instanceof Error ? error.message : 'Could not open the local database.');

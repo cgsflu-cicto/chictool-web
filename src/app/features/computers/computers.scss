@@ -117,6 +117,12 @@
             overflow-x: auto;
         }
 
+        .inbox-signin-cta {
+            display: flex;
+            justify-content: center;
+            margin: 18px auto 24px;
+        }
+
         .serial-number {
             font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
         }
@@ -342,6 +348,13 @@
     }
 
     ::ng-deep {
+        .table-wrap td.actions p-button > button:hover,
+        .table-wrap td.actions p-button .p-button:hover {
+            border: 0 !important;
+            outline: 0 !important;
+            box-shadow: none !important;
+        }
+
         .capture-panel {
             input,
             p-select.p-select,

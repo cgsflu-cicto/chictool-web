@@ -78,6 +78,13 @@ export type DesktopBridge = {
         username?: string;
         password?: string;
     }): Promise<Partial<Computer>>;
+    getPushConfig(): Promise<{ serverUrl: string }>;
+    testPushServer(serverUrl: string): Promise<{ serverUrl: string }>;
+    setPushServer(serverUrl: string): Promise<{ serverUrl: string }>;
+    pushLocalCapture(): Promise<{ status: 'saved' | 'discarded'; message: string }>;
+    getPushInbox(): Promise<PushSubmission[]>;
+    decidePush(id: string, action: 'save' | 'discard', computer?: Computer): Promise<{ status: string; computer?: Computer }>;
+    onPushReceived(listener: (submission: { id: string }) => void): () => void;
     downloadTargetSetup(): Promise<string>;
     trustTarget(hostname: string): Promise<string>;
     getSyncSettings(): Promise<{ serverUrl: string }>;
@@ -97,6 +104,8 @@ export type DesktopBridge = {
     savePeripheral(peripheral: Peripheral): Promise<Peripheral>;
     deletePeripheral(id: string): Promise<void>;
 };
+
+export type PushSubmission = { id: string; computer: Partial<Computer>; receivedAt: string };
 
 declare global {
     interface Window {

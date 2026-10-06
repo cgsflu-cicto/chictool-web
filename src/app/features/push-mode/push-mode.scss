@@ -1,0 +1,63 @@
+:host {
+    display: grid;
+    min-height: 65vh;
+    place-items: center;
+}
+
+.push-card {
+    background: #fff;
+    border: 1px solid #e1e7ef;
+    border-radius: 14px;
+    box-shadow: 0 12px 36px #18334d12;
+    display: grid;
+    gap: 16px;
+    max-width: 560px;
+    padding: 32px;
+    width: 100%;
+}
+
+h1,
+p {
+    margin: 0;
+}
+
+.eyebrow {
+    color: #66758a;
+    font-size: 0.68rem;
+    font-weight: 750;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+label {
+    color: #46566d;
+    display: grid;
+    font-size: 0.82rem;
+    font-weight: 700;
+    gap: 7px;
+}
+
+.actions,
+.push-actions-left {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.actions {
+    justify-content: space-between;
+}
+
+.message {
+    color: #177265;
+}
+
+.error {
+    color: #bd303c;
+}
+
+h2 {
+    color: #172b4d;
+    font-size: 1.25rem;
+    margin: 6px 0 0;
+}

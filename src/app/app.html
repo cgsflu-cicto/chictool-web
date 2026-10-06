@@ -1,5 +1,9 @@
-<div class="shell" [hidden]="desktop() && !currentUser() && activeView() !== 'login'">
-    <aside class="sidebar">
+<div
+    class="shell"
+    [class.push-mode]="activeView() === 'push-mode'"
+    [hidden]="desktop() && !currentUser() && !['login', 'push-mode', 'push-inbox'].includes(activeView())"
+>
+    <aside class="sidebar" [hidden]="activeView() === 'push-mode'">
         <div class="brand">CHICTOOL</div>
         <p class="eyebrow"></p>
         <nav>
@@ -20,6 +24,15 @@
                 [text]="true"
                 [class.active]="activeView() === 'peripherals'"
                 (onClick)="changeView('peripherals')"
+            />
+            <p-button
+                label="Push Inbox"
+                icon="pi pi-inbox"
+                iconPos="left"
+                type="button"
+                [text]="true"
+                [class.active]="activeView() === 'push-inbox'"
+                (onClick)="openPushInbox()"
             />
             <p-button
                 label="System"

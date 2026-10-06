@@ -1,0 +1,52 @@
+<section class="push-card">
+    <div>
+        <p class="eyebrow">Push Mode</p>
+        <h2>{{ configured() ? 'Push details' : 'Configure receiver' }}</h2>
+    </div>
+    <p>Capture hardware details and push to the receiver app address.</p>
+    <label
+        >Receiver Address<input
+            pInputText
+            [(ngModel)]="serverDraft"
+            name="serverDraft"
+            placeholder="http://192.168.1.10:4783"
+            [disabled]="!editingReceiver() || busy()"
+    /></label>
+    @if (setupError()) {
+        <p role="alert" class="error">{{ setupError() }}</p>
+    }
+    <div class="actions">
+        <div class="push-actions-left">
+            <p-button
+                [label]="editingReceiver() ? (busy() ? 'Testing…' : 'Set Receiver') : 'Change Receiver'"
+                type="button"
+                severity="secondary"
+                [outlined]="true"
+                [loading]="busy() && editingReceiver()"
+                [disabled]="busy() || (editingReceiver() && !serverDraft.trim())"
+                (onClick)="toggleReceiver()"
+            />
+            <p-button
+                [label]="busy() && !editingReceiver() ? 'Waiting for review…' : 'Push Details'"
+                type="button"
+                [loading]="busy() && !editingReceiver()"
+                [disabled]="busy() || !configured() || editingReceiver()"
+                (onClick)="captureAndSend()"
+            />
+        </div>
+        <p-button
+            label="Exit Push Mode"
+            type="button"
+            severity="secondary"
+            [text]="true"
+            [disabled]="busy()"
+            (onClick)="router.navigateByUrl('/login')"
+        />
+    </div>
+    @if (message()) {
+        <p role="status" class="message">{{ message() }}</p>
+    }
+    @if (error()) {
+        <p role="alert" class="error">{{ error() }}</p>
+    }
+</section>

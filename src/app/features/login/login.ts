@@ -2,7 +2,7 @@ import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Button } from '@openng/optimus-ui/button';
 import { InputTextModule } from '@openng/optimus-ui/inputtext';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ChictoolStateService } from '../../shared/services/chictool-state.service';
 import { SessionService } from '../../shared/services/session.service';
 
@@ -16,6 +16,7 @@ export class Login {
     private readonly state = inject(ChictoolStateService);
     private readonly session = inject(SessionService);
     private readonly router = inject(Router);
+    private readonly route = inject(ActivatedRoute);
     readonly desktop = this.state.desktop;
     readonly hasUsers = this.state.hasUsers;
     readonly currentUser = this.state.currentUser;
@@ -30,6 +31,10 @@ export class Login {
         return this.authenticate('register');
     }
 
+    openPushMode(): void {
+        void this.router.navigateByUrl('/push-mode');
+    }
+
     private async authenticate(action: 'login' | 'register'): Promise<void> {
         try {
             const authenticated = await this.session.authenticate(
@@ -37,7 +42,7 @@ export class Login {
                 this.authForm.username,
                 this.authForm.password,
             );
-            if (authenticated) await this.router.navigateByUrl('/computers');
+            if (authenticated) await this.router.navigateByUrl(this.route.snapshot.queryParamMap.get('returnUrl') || '/computers');
         } catch (error) {
             this.state.authError.set(error instanceof Error ? error.message : 'Could not authenticate.');
         }
