@@ -55,6 +55,7 @@
                     <th>Serial Number</th>
                     <th>Primary User</th>
                     <th>Linked Computer</th>
+                    <th>Remarks</th>
                     <th></th>
                 </tr>
             </thead>
@@ -68,6 +69,7 @@
                         <td class="serial-number">{{ item.serialNumber || '—' }}</td>
                         <td>{{ item.assignedUser || 'Unassigned' }}</td>
                         <td class="serial-number">{{ item.computerSerialNumber || '—' }}</td>
+                        <td>{{ item.remarks || '—' }}</td>
                         <td class="actions">
                             <p-button
                                 label="Edit"
@@ -89,7 +91,7 @@
                 }
                 @if (!filteredPeripherals().length) {
                     <tr>
-                        <td colspan="5" class="empty">
+                        <td colspan="6" class="empty">
                             {{
                                 peripheralComputerFilter()
                                     ? 'No peripherals are linked to this computer yet.'
@@ -163,6 +165,14 @@
                         [editable]="true"
                         [disabled]="!!peripheralComputerFilter()"
                 /></label>
+                <label class="remarks-field"
+                    >Remarks<textarea
+                        pInputTextarea
+                        [(ngModel)]="peripheralForm.remarks"
+                        name="remarks"
+                        rows="3"
+                        placeholder="Additional notes"></textarea
+                ></label>
             </div>
             <div class="dialog-actions">
                 <p-button

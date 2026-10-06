@@ -33,6 +33,7 @@ export type Peripheral = {
     model: string;
     serialNumber: string;
     assignedUser: string;
+    remarks: string;
     computerSerialNumber: string;
     computerId: string;
 };
