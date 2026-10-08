@@ -27,7 +27,7 @@
                 (onClick)="toggleReceiver()"
             />
             <p-button
-                [label]="busy() && !editingReceiver() ? 'Waiting for review…' : 'Push Details'"
+                [label]="busy() && !editingReceiver() ? 'Reviewing…' : 'Push Details'"
                 type="button"
                 [loading]="busy() && !editingReceiver()"
                 [disabled]="busy() || !configured() || editingReceiver()"
