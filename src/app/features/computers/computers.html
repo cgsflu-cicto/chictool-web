@@ -225,7 +225,7 @@
             </div>
             <div class="form-grid">
                 <label
-                    >Serial Number<input
+                    ><span>Serial Number<sup class="required-marker">Required</sup></span><input
                         pInputText
                         [(ngModel)]="computerForm.serialNumber"
                         name="serialNumber"
@@ -273,7 +273,7 @@
                         optionLabel="label"
                         optionValue="value" /></label
                 ><label
-                    >Office<p-select
+                    ><span>Office<sup class="required-marker">Required</sup></span><p-select
                         [(ngModel)]="computerForm.office"
                         name="office"
                         [options]="lookups()['office']"

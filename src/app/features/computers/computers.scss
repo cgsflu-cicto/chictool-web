@@ -282,6 +282,20 @@
             gap: 6px;
         }
 
+        .required-marker {
+            background: #bd303c;
+            border-radius: 999px;
+            color: #fff;
+            font-size: 0.7em;
+            font-weight: 600;
+            margin-left: 0.45em;
+            padding: 0.15em 0.6em;
+            padding-bottom: 0.25em;
+            position: relative;
+            top: 0.1em;
+            vertical-align: super;
+        }
+
         p-autocomplete,
         .form-autocomplete {
             width: 100%;
