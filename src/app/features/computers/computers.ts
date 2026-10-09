@@ -55,6 +55,7 @@ export class Computers {
     readonly office = signal('');
     readonly showComputerForm = signal(false);
     readonly editingComputerId = signal<string | null>(null);
+    readonly serialNumberReadOnly = signal(false);
     computerForm = this.blankComputer();
     captureMode: 'local' | 'remote' = 'local';
     readonly captureModes = [
@@ -125,6 +126,7 @@ export class Computers {
 
     public openComputerForm(computer?: Computer, preserveCaptured = false): void {
         this.editingComputerId.set(computer?.id ?? null);
+        this.serialNumberReadOnly.set(!!computer);
         if (!preserveCaptured) this.computerForm = computer ? { ...computer } : this.blankComputer();
         this.captureMode = 'local';
         this.captureHostname = '';
@@ -198,6 +200,7 @@ export class Computers {
         const captured = this.captureResult();
         if (!captured) return;
         this.editingComputerId.set(null);
+        this.serialNumberReadOnly.set(true);
         this.computerForm = { ...this.blankComputer(), ...captured };
         this.captureResult.set(null);
         this.captureMessage.set('');
@@ -208,6 +211,7 @@ export class Computers {
         const saved = this.matchedCapturedComputer();
         if (!saved) return;
         this.editingComputerId.set(saved.id);
+        this.serialNumberReadOnly.set(true);
         this.computerForm = { ...saved };
         this.captureResult.set(null);
         this.captureMessage.set('');

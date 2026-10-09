@@ -229,7 +229,7 @@
                         pInputText
                         [(ngModel)]="computerForm.serialNumber"
                         name="serialNumber"
-                        readonly
+                        [readonly]="serialNumberReadOnly()"
                         required /></label
                 ><label
                     >Serial override<input

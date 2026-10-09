@@ -75,7 +75,7 @@
             <p class="eyebrow">Received {{ submission.receivedAt | date: 'medium' }}</p>
             <div class="form-grid">
                 <label
-                    >Serial Number<input
+                    ><span>Serial Number<sup class="required-marker">Required</sup></span><input
                         pInputText
                         [(ngModel)]="computerForm.serialNumber"
                         name="serialNumber"
@@ -125,7 +125,7 @@
                         optionValue="value"
                 /></label>
                 <label
-                    >Office<p-select
+                    ><span>Office<sup class="required-marker">Required</sup></span><p-select
                         [(ngModel)]="computerForm.office"
                         name="office"
                         [options]="lookups()['office']"
