@@ -265,7 +265,7 @@ export class Computers {
     }
 
     public async saveComputer(): Promise<void> {
-        if (!this.computerForm.serialNumber.trim() || !this.computerForm.office.trim()) return;
+        if (!this.computerForm.serialNumber.trim() || !this.computerForm.office.trim() || !this.computerForm.machineType.trim()) return;
         const record = {
             ...this.computerForm,
             serialNumber: this.computerForm.serialNumber.trim(),

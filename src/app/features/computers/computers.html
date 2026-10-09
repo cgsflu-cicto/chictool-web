@@ -209,7 +209,7 @@
 </section>
 @if (showComputerForm()) {
     <div class="backdrop">
-        <form class="dialog computer-dialog" (ngSubmit)="saveComputer()">
+        <form class="dialog computer-dialog" #computerNgForm="ngForm" (ngSubmit)="saveComputer()">
             <div class="dialog-heading">
                 <div>
                     <p class="eyebrow">{{ editingComputerId() ? 'Edit Computer' : 'Add Computer' }}</p>
@@ -266,12 +266,14 @@
                             icon="pi pi-filter"
                         /></div></label
                 ><label
-                    >Device type<p-select
+                    ><span>Device type<sup class="required-marker">Required</sup></span><p-select
                         [(ngModel)]="computerForm.machineType"
                         name="machineType"
                         [options]="lookups()['device_type']"
                         optionLabel="label"
-                        optionValue="value" /></label
+                        optionValue="value"
+                        placeholder="Select Device Type"
+                        required /></label
                 ><label
                     ><span>Office<sup class="required-marker">Required</sup></span><p-select
                         [(ngModel)]="computerForm.office"
@@ -346,7 +348,7 @@
                         [outlined]="true"
                         (onClick)="showComputerForm.set(false)"
                     />
-                    <p-button label="Save" type="submit" severity="primary" />
+                    <p-button label="Save" type="submit" severity="primary" [disabled]="computerNgForm.invalid" />
                 </div>
             </div>
         </form>
