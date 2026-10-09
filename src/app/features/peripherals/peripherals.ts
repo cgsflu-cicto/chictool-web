@@ -164,7 +164,6 @@ export class Peripherals {
                 ? items.map((item) => (item.id === record.id ? record : item))
                 : [record, ...items],
         );
-        this.state.persistPeripherals();
         this.showPeripheralForm.set(false);
     }
 
@@ -180,7 +179,6 @@ export class Peripherals {
                 return;
             }
             this.peripherals.update((items) => items.filter((item) => item.id !== peripheral.id));
-            this.state.persistPeripherals();
         }
     }
 
@@ -188,7 +186,7 @@ export class Peripherals {
         return {
             id: crypto.randomUUID(),
             syncId: '',
-            type: 'Monitor',
+            type: '',
             manufacturer: '',
             model: '',
             serialNumber: '',

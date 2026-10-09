@@ -6,7 +6,7 @@ export type Computer = {
     hostname: string;
     manufacturer: string;
     model: string;
-    machineType: DeviceType;
+    machineType: DeviceType | '';
     office: string;
     primaryUser: string;
     operatingSystem: string;

@@ -153,7 +153,7 @@ export class PushInbox implements OnDestroy {
             hostname: '',
             manufacturer: '',
             model: '',
-            machineType: 'Laptop',
+            machineType: '',
             office: '',
             primaryUser: '',
             operatingSystem: '',

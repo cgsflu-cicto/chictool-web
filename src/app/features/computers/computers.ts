@@ -312,8 +312,6 @@ export class Computers {
                 item.computerSerialNumber === computer.serialNumber ? { ...item, computerSerialNumber: '' } : item,
             ),
         );
-        this.state.persistComputers();
-        this.state.persistPeripherals();
     }
 
     private blankComputer(): Computer {
@@ -324,10 +322,10 @@ export class Computers {
             hostname: '',
             manufacturer: '',
             model: '',
-            machineType: 'Laptop',
+            machineType: '',
             office: '',
             primaryUser: '',
-            operatingSystem: 'Windows 11 Pro',
+            operatingSystem: '',
             collectedOn: new Date().toISOString().slice(0, 10),
         };
     }
