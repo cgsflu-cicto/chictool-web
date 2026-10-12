@@ -90,7 +90,8 @@ export class Computers {
     });
     readonly filteredComputers = computed(() => {
         const query = this.query().trim().toLowerCase();
-        return this.computers().filter(
+        return this.computers()
+            .filter(
             (item) =>
                 (!this.office() || item.office === this.office()) &&
                 matchesSearch(query, [
@@ -104,7 +105,12 @@ export class Computers {
                     item.office,
                     item.operatingSystem,
                 ]),
-        );
+            )
+            .sort((left, right) => {
+                const leftDate = Date.parse(left.collectedOn) || 0;
+                const rightDate = Date.parse(right.collectedOn) || 0;
+                return rightDate - leftDate;
+            });
     });
 
     public manageComputerPeripherals(): void {

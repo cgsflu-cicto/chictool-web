@@ -33,6 +33,8 @@ export class PushInbox implements OnDestroy {
     private readonly router = inject(Router);
     readonly currentUser = this.state.currentUser;
     readonly lookups = this.state.lookups;
+    readonly computers = this.state.computers;
+    readonly peripherals = this.state.peripherals;
     readonly items = signal<PushSubmission[]>([]);
     readonly error = signal('');
     readonly activeSubmission = signal<PushSubmission | null>(null);
@@ -66,18 +68,23 @@ export class PushInbox implements OnDestroy {
     }
 
     suggestManufacturers(query: string): void {
+        const records = [...this.computers(), ...this.peripherals()];
         this.manufacturerSuggestions.set(
             this.suggestions(
                 query,
-                this.items().map((item) => item.computer.manufacturer || ''),
+                records.map((item) => item.manufacturer || ''),
             ),
         );
     }
     suggestModels(query: string): void {
+        const manufacturer = this.computerForm.manufacturer.trim().toLocaleLowerCase();
+        const records = [...this.computers(), ...this.peripherals()].filter(
+            (item) => !manufacturer || item.manufacturer.trim().toLocaleLowerCase() === manufacturer,
+        );
         this.modelSuggestions.set(
             this.suggestions(
                 query,
-                this.items().map((item) => item.computer.model || ''),
+                records.map((item) => item.model || ''),
             ),
         );
     }
@@ -85,7 +92,10 @@ export class PushInbox implements OnDestroy {
         this.userSuggestions.set(
             this.suggestions(
                 query,
-                this.items().flatMap((item) => [item.computer.primaryUser || '', item.computer.username || '']),
+                [
+                    ...this.computers().flatMap((computer) => [computer.primaryUser, computer.parHolder ?? '']),
+                    ...this.peripherals().map((peripheral) => peripheral.assignedUser),
+                ],
             ),
         );
     }
@@ -102,6 +112,7 @@ export class PushInbox implements OnDestroy {
             await this.router.navigate(['/login'], { queryParams: { returnUrl: '/push-inbox' } });
             return;
         }
+        if (action === 'save' && (!this.computerForm.serialNumber.trim() || !this.computerForm.machineType.trim() || !this.computerForm.office.trim())) return;
         try {
             const computer =
                 action === 'save'

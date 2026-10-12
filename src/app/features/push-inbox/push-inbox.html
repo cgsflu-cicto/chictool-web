@@ -67,7 +67,7 @@
 
 @if (activeSubmission(); as submission) {
     <div class="backdrop">
-        <form class="dialog computer-dialog" (ngSubmit)="decide('save')">
+        <form class="dialog computer-dialog" #computerNgForm="ngForm" (ngSubmit)="decide('save')">
             <div class="dialog-heading">
                 <div><p class="eyebrow">Review Pushed Computer</p></div>
                 <p-button label="×" type="button" severity="secondary" [text]="true" (onClick)="closeReview()" />
@@ -117,12 +117,14 @@
                         /></div
                 ></label>
                 <label
-                    >Device type<p-select
+                    ><span>Device type<sup class="required-marker">Required</sup></span><p-select
                         [(ngModel)]="computerForm.machineType"
                         name="machineType"
                         [options]="lookups()['device_type']"
                         optionLabel="label"
                         optionValue="value"
+                        placeholder="Select Device Type"
+                        required
                 /></label>
                 <label
                     ><span>Office<sup class="required-marker">Required</sup></span><p-select
@@ -210,7 +212,7 @@
                         label="Save"
                         type="submit"
                         severity="primary"
-                        [disabled]="!currentUser() || !computerForm.office"
+                        [disabled]="!currentUser() || computerNgForm.invalid"
                     />
                 </div>
             </div>

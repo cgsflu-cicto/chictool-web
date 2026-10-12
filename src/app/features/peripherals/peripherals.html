@@ -150,10 +150,13 @@
                         [minLength]="1"
                         (completeMethod)="suggestModels($event.query)" /></label
                 ><label
-                    >Primary User<input
-                        pInputText
+                    >Primary User<p-autoComplete
+                        styleClass="form-autocomplete"
                         [(ngModel)]="peripheralForm.assignedUser"
-                        name="assignedUser" /></label
+                        name="assignedUser"
+                        [suggestions]="userSuggestions()"
+                        [minLength]="1"
+                        (completeMethod)="suggestUsers($event.query)" /></label
                 ><label
                     >Linked Computer<p-select
                         [(ngModel)]="peripheralForm.computerId"
